@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calculadora — Engine de Inferência Estatística</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f4ef;color:#1a1a1a;padding:0;font-size:13px}
+.app{max-width:1040px;margin:0 auto;padding:1.5rem}
+
+.hd{margin-bottom:1.2rem}
+.hd h1{font-size:19px;font-weight:600;margin-bottom:3px}
+.hd p{font-size:12px;color:#777;line-height:1.5;max-width:680px}
+
+/* Notices */
+.notice{border-radius:8px;padding:9px 13px;font-size:11px;margin-bottom:.8rem;line-height:1.6;display:none}
+.notice-mental{background:#f0f5ff;border:1px solid #b8ccf0;color:#2a4a8a}
+.notice-orphan{background:#fff8f0;border:1px solid #f5c97a;color:#7a5a00}
+
+/* Topbar */
+.topbar{display:flex;gap:7px;margin-bottom:.7rem;flex-wrap:wrap;align-items:center}
+.sw{flex:1;min-width:180px;position:relative}
+.sw input{width:100%;padding:7px 10px 7px 28px;border:1px solid #ddd;border-radius:8px;background:#fff;font-size:12px;outline:none;color:#1a1a1a}
+.sw input:focus{border-color:#aaa}
+.si{position:absolute;left:8px;top:50%;transform:translateY(-50%);font-size:13px;color:#bbb;pointer-events:none}
+.ftabs{display:flex;gap:3px;flex-wrap:wrap}
+.ftab{padding:3px 8px;border:1px solid #ddd;border-radius:6px;font-size:11px;cursor:pointer;background:#fff;color:#777;white-space:nowrap}
+.ftab:hover{border-color:#bbb;color:#333}
+.ftab.on{background:#1a1a1a;color:#fff;border-color:#1a1a1a}
+
+/* Grid de dados */
+.sec-lbl{font-size:10px;font-weight:600;color:#aaa;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(192px,1fr));gap:5px;margin-bottom:.8rem}
+.dc{background:#fff;border:1px solid #eaeaea;border-radius:7px;padding:7px 9px;cursor:pointer;transition:border-color .1s,background .1s}
+.dc:hover{border-color:#bbb}
+.dc.on{border-color:#1D9E75;background:#f0faf5}
+.dc.on.orphan{border-color:#d4a800;background:#fffbef} /* selecionado mas sem modelo */
+.dc.hint{border-color:#b8ccf0;background:#f8faff}      /* desbloquearia modelo */
+.dct{display:flex;justify-content:space-between;align-items:flex-start;gap:4px;margin-bottom:2px}
+.dcn{font-size:11px;font-weight:600;color:#1a1a1a;line-height:1.3}
+.dcb{font-size:9px;padding:1px 4px;border-radius:3px;font-weight:600;flex-shrink:0;margin-top:1px;white-space:nowrap}
+.dcd{font-size:10px;color:#aaa;line-height:1.3}
+.dc-sub{font-size:9px;margin-top:3px}
+.dc-sub.hint-txt{color:#185FA5}
+.dc-sub.orphan-txt{color:#d4a800}
+
+/* Selbar */
+.selbar{background:#fff;border:1px solid #eaeaea;border-radius:9px;padding:9px 11px;margin-bottom:.8rem}
+.selbar-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px}
+.sellbl{font-size:10px;font-weight:600;color:#aaa;text-transform:uppercase;letter-spacing:.06em}
+.clr-btn{font-size:11px;color:#bbb;cursor:pointer;background:none;border:none;padding:0}
+.clr-btn:hover{color:#666}
+.seltags{display:flex;flex-wrap:wrap;gap:4px;min-height:22px}
+.stag{display:inline-flex;align-items:center;gap:3px;background:#f5f5f0;border:1px solid #e0e0dc;border-radius:6px;padding:2px 6px;font-size:11px;color:#333}
+.stag em{cursor:pointer;color:#ccc;font-style:normal}
+.stag em:hover{color:#666}
+
+/* Resultados stats */
+.res-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(88px,1fr));gap:6px;margin-bottom:.9rem}
+.rs{background:#fff;border:1px solid #eaeaea;border-radius:7px;padding:8px 10px;text-align:center}
+.rs-n{font-size:18px;font-weight:700;color:#1a1a1a}
+.rs-l{font-size:10px;color:#aaa;margin-top:1px}
+
+/* Filtro domínio */
+.res-filter{display:flex;gap:4px;margin-bottom:.9rem;flex-wrap:wrap;align-items:center}
+.rftab{padding:3px 8px;border:1px solid #ddd;border-radius:6px;font-size:11px;cursor:pointer;background:#fff;color:#777}
+.rftab.on{background:#1a1a1a;color:#fff;border-color:#1a1a1a}
+
+/* Grupos de resultado */
+.sg{margin-bottom:1.2rem}
+.sg-hd{display:flex;align-items:center;gap:8px;padding:5px 10px;border-radius:6px;margin-bottom:7px}
+.sg-l1{background:#EEF4FC;border-left:3px solid #185FA5}
+.sg-l2{background:#F0EEFF;border-left:3px solid #534AB7}
+.sg-l3{background:#FFF4E0;border-left:3px solid #854F0B}
+.sg-t{font-size:11px;font-weight:600;flex:1;color:#1a1a1a}
+.sg-c{font-size:10px;color:#aaa}
+
+/* Card resultado */
+.rc{background:#fff;border:1px solid #eaeaea;border-radius:9px;padding:.85rem 1rem;margin-bottom:6px}
+.rc:hover{border-color:#d0d0d0}
+.rc.mental{border-left:3px solid #0F6E56}
+
+.rtop{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;flex-wrap:wrap;margin-bottom:5px}
+.rname{font-size:13px;font-weight:600;color:#1a1a1a;flex:1;min-width:0}
+.rbadges{display:flex;gap:3px;flex-wrap:wrap;flex-shrink:0}
+.bdg{font-size:10px;padding:2px 6px;border-radius:4px;font-weight:600}
+.bl1{background:#EEF4FC;color:#185FA5}
+.bl2{background:#F0EEFF;color:#534AB7}
+.bl3{background:#FFF4E0;color:#854F0B}
+.bdg-m{background:#E1F5EE;color:#0F6E56}
+
+/* Barra cobertura */
+.cov-row{display:flex;align-items:center;gap:8px;margin-bottom:5px}
+.cov-bar-bg{flex:1;background:#f0f0eb;border-radius:4px;height:6px}
+.cov-bar-fill{height:6px;border-radius:4px;transition:width .35s}
+.cov-pct{font-size:11px;font-weight:700;min-width:32px;text-align:right}
+.cov-st{font-size:10px;padding:2px 6px;border-radius:4px;font-weight:600;display:inline-block;margin-bottom:6px}
+.cov-h{background:#E1F5EE;color:#0F6E56}
+.cov-m{background:#FAEEDA;color:#854F0B}
+.cov-l{background:#FCEBEB;color:#A32D2D}
+
+/* Variáveis — colapsável, com notas visíveis */
+.vt{display:flex;align-items:center;gap:5px;cursor:pointer;font-size:10px;color:#999;user-select:none;margin-bottom:4px;padding:3px 0}
+.vt:hover{color:#555}
+.va{display:inline-block;transition:transform .18s;font-size:9px}
+.va.open{transform:rotate(90deg)}
+.vgrid{display:none;flex-direction:column;margin-bottom:6px}
+.vgrid.open{display:flex}
+.vrow{display:grid;grid-template-columns:130px 1fr 28px 18px;align-items:center;gap:5px;font-size:10px;padding:3px 0;border-bottom:1px solid #f7f7f5}
+.vrow:last-child{border-bottom:none}
+.vn{color:#555;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.vbar{background:#f0f0eb;border-radius:2px;height:4px}
+.vfill{height:4px;border-radius:2px}
+.vfill.p{background:#1D9E75}
+.vfill.a{background:#e8e8e8}
+.vpct{font-size:9px;color:#bbb;text-align:right}
+.vtag{font-size:8px;padding:1px 4px;border-radius:3px;font-weight:700;text-align:center}
+.vtag.p{background:#E1F5EE;color:#0F6E56}
+.vtag.a{background:#f5f5f0;color:#ccc}
+/* Notas expandidas: clique no item */
+.vnote{display:none;grid-column:1/-1;font-size:9px;color:#aaa;padding:2px 4px;background:#fafaf8;border-radius:3px;line-height:1.5}
+.vrow.expanded .vnote{display:block}
+.vrow.expanded .vn{font-weight:600;color:#1a1a1a}
+
+/* Dados ausentes prioritários */
+.miss{margin-top:5px;font-size:10px;color:#854F0B}
+.miss-item{display:inline-flex;align-items:center;gap:3px;background:#fff8f0;border:1px solid #f5c97a;border-radius:4px;padding:2px 6px;margin:2px;font-size:10px;color:#854F0B;cursor:pointer;transition:background .1s}
+.miss-item:hover{background:#fff0cc}
+
+/* Rodapé do card */
+.rft{border-top:1px solid #f0f0eb;padding-top:7px;margin-top:4px}
+.rmod{font-size:10px;color:#666;margin-bottom:2px;line-height:1.4}
+.rmod strong{color:#1a1a1a}
+.rperf{font-size:10px;color:#888;line-height:1.4;margin-bottom:2px}
+.rcav{font-size:9px;color:#bbb;line-height:1.5;font-style:italic;margin-top:3px}
+.rcav.alert{color:#A32D2D;font-style:normal;font-weight:500;font-size:10px;background:#FCEBEB;border-radius:4px;padding:4px 7px;margin-top:4px}
+
+/* Seção "combinadas" nos cards N2/N3 */
+.comb-section{margin-bottom:7px}
+.comb-label{font-size:10px;color:#888;margin-bottom:5px;font-weight:600;text-transform:uppercase;letter-spacing:.04em}
+.comb-block{background:#f8f7ff;border:1px solid #e8e4ff;border-radius:6px;padding:6px 9px;margin-bottom:4px}
+.comb-block:last-child{margin-bottom:0}
+.comb-name{font-size:11px;font-weight:600;color:#534AB7;margin-bottom:2px}
+.comb-cov{font-size:10px;font-weight:700;margin-left:5px}
+.comb-vars{font-size:10px;color:#666;line-height:1.4;display:block}
+
+.empty{text-align:center;padding:2.5rem 1rem;color:#bbb;font-size:12px;background:#fff;border-radius:9px;border:1px dashed #e0e0dc}
+</style>
+</head>
+<body>
+<nav style="position:sticky;top:0;z-index:100;background:#0f0e0c;border-bottom:1px solid #2a2a28;padding:0 1.5rem">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&display=swap" rel="stylesheet">
+<div style="max-width:1100px;margin:0 auto;display:flex;align-items:center;height:52px;font-family:'Syne',sans-serif">
+  <a href="index.html" style="font-weight:800;font-size:14px;color:#f8f6f0;letter-spacing:-.01em;margin-right:auto;text-decoration:none;white-space:nowrap">Engine de <span style="color:#c8401a">Inferência</span></a>
+  <div style="display:flex">
+    <a href="index.html" style="font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#888;text-decoration:none;padding:0 1rem;height:52px;display:flex;align-items:center;border-left:1px solid #2a2a28">Início</a>
+    <a href="calculadora.html" style="font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#f8f6f0;text-decoration:none;padding:0 1rem;height:52px;display:flex;align-items:center;border-left:1px solid #2a2a28">Calculadora</a>
+    <a href="docs.html" style="font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#888;text-decoration:none;padding:0 1rem;height:52px;display:flex;align-items:center;border-left:1px solid #2a2a28">Documentação</a>
+  </div>
+</div>
+</nav>
+
+<div class="app">
+
+<div class="hd">
+  <h1>Engine de Inferência Estatística v8</h1>
+  <p>Selecione os dados disponíveis. Cada inferência mapeia para um modelo publicado — cobertura mostra quais variáveis do estudo original você possui, ponderadas pelos pesos da literatura.</p>
+</div>
+
+<!-- Aparece só com dados de fenotipagem selecionados -->
+<div class="notice notice-mental" id="n-mental">
+  <strong>⚠ Fenotipagem digital ativa.</strong> GPS, HRV, digitação e sono via wearable ativam inferências de estados mentais. São <em>triagens populacionais</em> — não diagnósticos individuais. Requerem consentimento informado e conformidade com a LGPD. Nunca substituem avaliação clínica.
+</div>
+
+<!-- Aparece quando há dados selecionados sem nenhum modelo -->
+<div class="notice notice-orphan" id="n-orphan">
+  <strong>Alguns dados selecionados não ativam modelos:</strong> <span id="orphan-list"></span>
+</div>
+
+<div class="topbar">
+  <div class="sw"><span class="si">⌕</span><input type="text" id="srch" placeholder="Buscar dado..." oninput="fc()"></div>
+  <div class="ftabs" id="ftabs"></div>
+</div>
+
+<p class="sec-lbl">
+  <span>Dados disponíveis <span id="gc" style="font-weight:400;letter-spacing:0;text-transform:none;color:#bbb"></span></span>
+</p>
+<div class="grid" id="cgrid"></div>
+
+<div class="selbar">
+  <div class="selbar-top">
+    <span class="sellbl">Selecionados (<span id="sc">0</span>)</span>
+    <button class="clr-btn" onclick="clearAll()">limpar tudo ×</button>
+  </div>
+  <div class="seltags" id="stags"><span style="font-size:11px;color:#ccc">Clique nos cartões acima para selecionar dados</span></div>
+</div>
+
+<div id="rarea"></div>
+</div>
+
+<script>
+// ─── CATEGORIAS ──────────────────────────────────────────────────────────
+const CATS={
+  geo: {l:'Geo',        bg:'#E1F5EE',tc:'#0F6E56'},
+  demo:{l:'Demo',       bg:'#E6F1FB',tc:'#185FA5'},
+  econ:{l:'Econômico',  bg:'#FAEEDA',tc:'#854F0B'},
+  beh: {l:'Comportamento',bg:'#EEEDFE',tc:'#534AB7'},
+  sau: {l:'Saúde',      bg:'#FCEBEB',tc:'#A32D2D'},
+  fin: {l:'Financeiro', bg:'#EAF3DE',tc:'#3B6D11'},
+  edu: {l:'Educação',   bg:'#FBEAF0',tc:'#993556'},
+  dig: {l:'Digital',    bg:'#F1EFE8',tc:'#5F5E5A'},
+  fen: {l:'Fenotipagem',bg:'#EEF3FF',tc:'#3B4CB8'},
+};
+
+// ─── DADOS ───────────────────────────────────────────────────────────────
+const DT=[
+  {id:'cep',c:'geo',n:'CEP',d:'Código Postal — proxy geoeconômico'},
+  {id:'cidade',c:'geo',n:'Cidade',d:'Município de residência'},
+  {id:'estado',c:'geo',n:'Estado / UF',d:'Unidade federativa'},
+  {id:'regiao',c:'geo',n:'Região do Brasil',d:'Norte / NE / Sul / SE / CO'},
+  {id:'bairro',c:'geo',n:'Bairro',d:'Subdivisão urbana do endereço'},
+  {id:'zona',c:'geo',n:'Zona urbana/rural',d:'Urbano vs rural'},
+  {id:'idh',c:'geo',n:'IDH do município',d:'IDH local — PNUD'},
+  {id:'vulner_area',c:'geo',n:'IVS da área',d:'Índice de Vulnerabilidade Social — IPEA'},
+  {id:'idade',c:'demo',n:'Idade',d:'Idade exata em anos'},
+  {id:'sexo',c:'demo',n:'Sexo declarado',d:'Sexo biológico ou gênero autodeclarado'},
+  {id:'escolaridade',c:'demo',n:'Escolaridade',d:'Nível educacional completo'},
+  {id:'estado_civil',c:'demo',n:'Estado civil',d:'Solteiro, casado, divorciado, viúvo'},
+  {id:'filhos',c:'demo',n:'Nº de filhos',d:'Quantidade de filhos — proxy de comprometimento de renda'},
+  {id:'raca',c:'demo',n:'Raça / Cor',d:'Autodeclaração IBGE — proxy de determinantes sociais de saúde'},
+  {id:'nome',c:'demo',n:'Primeiro nome',d:'Indicativo de gênero e origem étnica'},
+  {id:'ano_nasc',c:'demo',n:'Ano de nascimento',d:'Determina geração com exatidão'},
+  {id:'renda',c:'econ',n:'Renda declarada',d:'Rendimento mensal em R$'},
+  {id:'renda_fam',c:'econ',n:'Renda familiar',d:'Renda total do domicílio'},
+  {id:'patrimonio',c:'econ',n:'Patrimônio',d:'Bens e ativos declarados'},
+  {id:'ocupacao',c:'econ',n:'Ocupação / Cargo',d:'Função profissional exercida'},
+  {id:'vinculo',c:'econ',n:'Vínculo empregatício',d:'CLT, PJ, autônomo, servidor'},
+  {id:'imovel',c:'econ',n:'Tipo de imóvel',d:'Próprio, alugado, financiado'},
+  {id:'veiculo',c:'econ',n:'Possui veículo',d:'Carro, moto ou nenhum'},
+  {id:'eletrodomesticos',c:'econ',n:'Eletrodomésticos',d:'Quantidade e tipo de bens duráveis'},
+  {id:'computador',c:'econ',n:'Possui computador',d:'Desktop, notebook ou tablet próprio'},
+  {id:'freq_comp',c:'beh',n:'Frequência de compras',d:'Número de transações por mês'},
+  {id:'ticket',c:'beh',n:'Ticket médio',d:'Valor médio por compra em R$'},
+  {id:'recencia',c:'beh',n:'Recência de uso',d:'Dias desde o último acesso ou compra'},
+  {id:'ult_compra',c:'beh',n:'Data última compra',d:'Dias desde a última transação'},
+  {id:'nps',c:'beh',n:'NPS / Satisfação',d:'Net Promoter Score 0–10'},
+  {id:'suporte',c:'beh',n:'Contatos de suporte',d:'Chamados abertos nos últimos 90 dias'},
+  {id:'uso_app',c:'beh',n:'Uso do app',d:'Sessões por semana no aplicativo'},
+  {id:'plano',c:'beh',n:'Tipo de plano',d:'Básico, premium ou enterprise'},
+  {id:'carrinho',c:'beh',n:'Abandono de carrinho',d:'Carrinhos iniciados sem finalizar'},
+  {id:'cliques',c:'beh',n:'CTR / Cliques',d:'Taxa de clique em comunicações enviadas'},
+  {id:'email_open',c:'beh',n:'Abertura de e-mails',d:'Taxa de abertura de e-mails'},
+  {id:'horario',c:'beh',n:'Horário de acesso',d:'Horas de pico de atividade digital'},
+  {id:'categorias',c:'beh',n:'Categorias de compra',d:'Segmentos de produtos adquiridos'},
+  {id:'imc',c:'sau',n:'IMC',d:'Índice de Massa Corporal'},
+  {id:'pressao',c:'sau',n:'Pressão arterial',d:'Sistólica e diastólica em mmHg'},
+  {id:'glicemia',c:'sau',n:'Glicemia em jejum',d:'Nível de glicose — triagem de pré-diabetes'},
+  {id:'colesterol',c:'sau',n:'Colesterol (HDL/LDL)',d:'Colesterol total e frações'},
+  {id:'tabagismo',c:'sau',n:'Tabagismo',d:'Fumante, ex-fumante, nunca fumou'},
+  {id:'diabetes',c:'sau',n:'Diabetes diagnosticado',d:'Diagnóstico clínico de diabetes'},
+  {id:'atv_fisica',c:'sau',n:'Atividade física',d:'≥30 min/dia de exercício regular'},
+  {id:'hist_glicemia',c:'sau',n:'Histórico glicemia alta',d:'Exame prévio com glicemia elevada'},
+  {id:'hist_doenca',c:'sau',n:'Histórico de doenças',d:'Comorbidades diagnosticadas'},
+  {id:'medic_antihiper',c:'sau',n:'Anti-hipertensivo',d:'Uso atual de medicamento para pressão'},
+  {id:'hist_familiar_dm',c:'sau',n:'Histórico familiar DM',d:'Familiar de 1º grau com diabetes'},
+  {id:'sono',c:'sau',n:'Qualidade do sono',d:'Horas/noite e qualidade percebida (auto-relato)'},
+  {id:'alcool',c:'sau',n:'Consumo de álcool',d:'Frequência e quantidade semanal — fator de risco CV'},
+  {id:'score_cred',c:'fin',n:'Score de crédito',d:'Pontuação Serasa / SPC / Boa Vista'},
+  {id:'uso_limite',c:'fin',n:'% uso do limite',d:'Percentual do limite de crédito usado'},
+  {id:'inadimpl',c:'fin',n:'Histórico inadimplência',d:'Registros de atraso em pagamentos'},
+  {id:'dividas',c:'fin',n:'Dívidas ativas',d:'Débitos em aberto no CPF'},
+  {id:'parcelas',c:'fin',n:'Parcelas ativas',d:'Contratos parcelados em aberto'},
+  {id:'investimentos',c:'fin',n:'Possui investimentos',d:'Aplicações financeiras ativas'},
+  {id:'hist_cred',c:'fin',n:'Histórico de crédito',d:'Registro histórico de pagamentos'},
+  {id:'limite',c:'fin',n:'Limite de cartão',d:'Limite total de crédito disponível'},
+  {id:'area_form',c:'edu',n:'Área de formação',d:'Área do curso de graduação'},
+  {id:'inst_ens',c:'edu',n:'Tipo de instituição',d:'Pública ou privada, conceito MEC'},
+  {id:'pos_grad',c:'edu',n:'Pós-graduação',d:'MBA, mestrado, doutorado'},
+  {id:'vel_net',c:'dig',n:'Velocidade de internet',d:'Mbps de conexão domiciliar'},
+  {id:'tipo_net',c:'dig',n:'Tipo de internet',d:'Fibra, cabo, 4G, 5G'},
+  {id:'plataformas',c:'dig',n:'Plataformas usadas',d:'Instagram, TikTok, LinkedIn, etc.'},
+  {id:'streaming',c:'dig',n:'Streaming',d:'Netflix, Spotify, Disney+ e similares'},
+  {id:'t_tela',c:'dig',n:'Tempo de tela diário',d:'Horas/dia (auto-relato) — proxy de engajamento'},
+  {id:'vpn',c:'dig',n:'Uso de VPN',d:'Utiliza rede privada virtual — maturidade digital avançada'},
+  // ── FENOTIPAGEM — coleta passiva; requer consentimento explícito ──────
+  {id:'gps_distancia',c:'fen',n:'Distância percorrida/dia',d:'Km/dia via GPS passivo — proxy de mobilidade'},
+  {id:'gps_homestay',c:'fen',n:'Tempo em casa (%)',d:'% do dia na residência — proxy de retraimento social'},
+  {id:'gps_entropia',c:'fen',n:'Entropia de localização',d:'Variabilidade dos locais visitados via GPS'},
+  {id:'ritmo_circadiano',c:'fen',n:'Regularidade circadiana',d:'Consistência do padrão de 24h via GPS/acelerômetro'},
+  {id:'desbloqueios',c:'fen',n:'Desbloqueios de tela/dia',d:'Frequência de desbloqueios — correlaciona com depressão'},
+  {id:'uso_noturno',c:'fen',n:'Uso noturno (após 22h)',d:'Uso após 22h — proxy de cronotipo e solidão'},
+  {id:'velocidade_digitacao',c:'fen',n:'Velocidade de digitação',d:'WPM médio em teclado virtual — reduzida em depressão'},
+  {id:'hrv',c:'fen',n:'HRV (variabilidade cardíaca)',d:'Variabilidade entre batimentos via wearable'},
+  {id:'passos_dia',c:'fen',n:'Passos/dia (acelerômetro)',d:'Contagem passiva via sensor'},
+  {id:'contatos_bluetooth',c:'fen',n:'Contatos Bluetooth/dia',d:'Dispositivos únicos detectados — proxy social'},
+  {id:'duracao_sono_wearable',c:'fen',n:'Sono via wearable',d:'Duração, eficiência e fase do sono medidas passivamente'},
+];
+
+// ─── MODELOS L1 ───────────────────────────────────────────────────────────
+const L1=[
+{
+  id:'ses', name:'Classe socioeconômica (ABEP)', domain:'social',
+  model:'Critério Brasil ABEP 2022 — posse de bens e escolaridade do chefe',
+  perf:'Acurácia ~88% (IBGE/PNAD 2022)',
+  caveat:'Usa proxies — o critério original exige questionário específico com cortes de pontos por bem. Resultado é estimativa de faixa, não classificação exata.',
+  vars:[
+    {id:'renda',       l:'Renda declarada',    w:32,n:'r=0,74 com classe ABEP (PNAD 2022) — maior preditor único'},
+    {id:'eletrodomesticos',l:'Eletrodomésticos',w:14,n:'Base do critério ABEP original — bens duráveis pontuados individualmente'},
+    {id:'imovel',      l:'Tipo de imóvel',     w:12,n:'Posse de imóvel: diferencial forte entre classes A/B e C/D/E'},
+    {id:'renda_fam',   l:'Renda familiar',     w:10,n:'Complementar à renda individual para domicílios com múltiplos provedores'},
+    {id:'veiculo',     l:'Possui veículo',     w:10,n:'Peso 4 no critério ABEP 2022'},
+    {id:'escolaridade',l:'Escolaridade',       w:10,n:'Escolaridade do chefe: até 8 pts no critério ABEP'},
+    {id:'computador',  l:'Possui computador',  w:6, n:'Peso 3 no critério ABEP 2022'},
+    {id:'cep',         l:'CEP',                w:6, n:'Proxy geoeconômico — r=0,67 com renda (GeoSES-BR 2020)'},
+  ]
+},
+{
+  id:'ses_geo', name:'NSE geográfico (GeoSES / IVS)', domain:'social',
+  model:'GeoSES-BR — Barrozo et al. 2020 (PLOS ONE, PMC7190143); IVS-IPEA 2022',
+  perf:'Correlação >0,85 com IDH-M; AIC −4.583 vs −524 do IDH isolado em mortalidade (Barrozo 2020)',
+  caveat:'Índice de área — representa o perfil médio da região, não do indivíduo específico. GeoSES-BR usa Censo 2010 (defasado); IVS-IPEA 2022 é mais atualizado.',
+  vars:[
+    {id:'cep',        l:'CEP',               w:35,n:'Principal proxy — mapeia setor censitário via geocodificação'},
+    {id:'idh',        l:'IDH do município',  w:28,n:'Correlação >0,85 com GeoSES-BR (Barrozo 2020)'},
+    {id:'vulner_area',l:'IVS da área',       w:22,n:'Dado direto — se disponível, é o próprio output do IPEA'},
+    {id:'bairro',     l:'Bairro',            w:10,n:'Refinamento inframunicipal — importante em capitais'},
+    {id:'zona',       l:'Zona urbana/rural', w:5, n:'Rural: IVS médio 40% maior que urbano (IPEA 2022)'},
+  ]
+},
+{
+  id:'cardio', name:'Risco cardiovascular (Framingham)', domain:'saude',
+  model:"D'Agostino et al. 2008 (Circulation 118:24) — Framingham General CVD Risk Score",
+  perf:'AUC=0,794 (IC95%: 0,743–0,844) em coorte europeia de validação (PMC3764050)',
+  caveat:'Desenvolvido em população norte-americana caucasiana de 1948–1971. MS Brasil adaptou o score, mas requer recalibração para contexto brasileiro. Válido para 30–74 anos sem doença CV prévia.',
+  vars:[
+    {id:'pressao',    l:'Pressão arterial sistólica',w:28,n:'β=1,65 (H) / 2,19 (M) no Cox — maior coeficiente do modelo'},
+    {id:'colesterol', l:'Colesterol total + HDL',    w:22,n:'β_TC=0,94; β_HDL=−0,88 — protetor e de risco combinados'},
+    {id:'tabagismo',  l:'Tabagismo',                 w:14,n:'β=0,82 (H) / 0,88 (M) — efeito sinérgico com HAS'},
+    {id:'diabetes',   l:'Diabetes',                  w:14,n:'β=0,87 (H) / 1,13 (M) — equivale a doença coronária prévia'},
+    {id:'idade',      l:'Idade',                     w:14,n:'β=0,72 (H) / 0,69 (M) — dominante em >55 anos'},
+    {id:'medic_antihiper',l:'Anti-hipertensivo',     w:8, n:'Ajusta o score quando PA está sob tratamento (+1 a +2 pts)'},
+  ]
+},
+{
+  id:'diabetes_r', name:'Risco de diabetes T2 (FINDRISC)', domain:'saude',
+  model:'Lindström & Tuomilehto 2003 (Diabetes Care 26:3); LA-FINDRISC: Aschner et al. 2023 (Frontiers Endocrinology, n=47.267)',
+  perf:'AUC=0,76 (IC95%: 0,74–0,78) em validação com 6 anos de seguimento na Turquia (Cambridge Core 2025)',
+  caveat:'Desenvolvido na Finlândia; versão LA-FINDRISC adapta cortes de circunferência abdominal para latinos. IMC é proxy imperfeito para circunferência abdominal.',
+  vars:[
+    {id:'hist_glicemia',  l:'Histórico glicemia alta',  w:25,n:'5 pts FINDRISC — OR=63× para risco muito alto em LATAM (Aschner 2023)'},
+    {id:'hist_familiar_dm',l:'Histórico familiar DM',  w:19,n:'5 pts — OR=38× em LATAM (Aschner 2023)'},
+    {id:'imc',            l:'IMC',                     w:18,n:'0–3 pts conforme faixa — obesos: OR=4,0 vs normopeso (ARIC study)'},
+    {id:'atv_fisica',     l:'Atividade física ≥30min', w:15,n:'2 pts se sedentário — OR=6× para DM em LATAM (Aschner 2023)'},
+    {id:'medic_antihiper',l:'Anti-hipertensivo',       w:12,n:'2 pts — OR=13× para risco muito alto em LATAM'},
+    {id:'idade',          l:'Idade',                   w:11,n:'0–4 pts por faixa etária; risco aumenta marcadamente >45 anos'},
+  ]
+},
+{
+  id:'churn', name:'Propensão a churn (RFM)', domain:'marketing',
+  model:'Fader & Hardie 2005 (Marketing Science 24:2) — BG/NBD; XGBoost RFM+NPS: Mena et al. 2024 (Annals OR)',
+  perf:'XGBoost RFM+NPS: AUC-ROC=0,85 (Mena 2024). RFM puro Pareto/NBD: MAPE<15% em 39 semanas',
+  caveat:'Recência é o preditor dominante (Fader & Hardie 2005). Pesos refletem importância relativa na literatura — variam por setor e produto.',
+  vars:[
+    {id:'recencia',  l:'Recência',              w:38,n:'"Greatest variability in CLV on recency dimension" — Fader & Hardie 2005'},
+    {id:'freq_comp', l:'Frequência de compras', w:20,n:'Segundo preditor em CLV no Pareto/NBD'},
+    {id:'nps',       l:'NPS / Satisfação',      w:15,n:'ΔAUC +0,07 ao adicionar ao RFM puro (Mena 2024)'},
+    {id:'ult_compra',l:'Data última compra',    w:12,n:'Complementar à recência — dias desde transação'},
+    {id:'suporte',   l:'Chamados de suporte',   w:10,n:'Maior SHAP value para churn de curto prazo (Zaghloul 2025)'},
+    {id:'plano',     l:'Tipo de plano',         w:5, n:'Plano básico: maior taxa histórica de cancelamento (Zuora SEI 2023)'},
+  ]
+},
+{
+  id:'ltv', name:'Lifetime Value (BG/NBD)', domain:'marketing',
+  model:"Fader & Hardie 2005 (Marketing Science 24:2) — 'Counting your customers the easy way'",
+  perf:'MAPE=13,6% em previsão de 39 semanas (Fader & Hardie 2005)',
+  caveat:'Assume estacionaridade e independência entre R/F e Monetary — premissa que pode não valer em contextos sazonais ou com promoções agressivas.',
+  vars:[
+    {id:'freq_comp',l:'Frequência de compras',w:42,n:'"Most important input for CLV estimation" — Fader & Hardie 2005'},
+    {id:'ticket',   l:'Ticket médio',         w:28,n:'Gamma-Gamma submodel — independente de R/F por premissa do modelo'},
+    {id:'recencia', l:'Recência',             w:22,n:'Proxy de probabilidade de ainda estar ativo — essencial no Pareto/NBD'},
+    {id:'plano',    l:'Tipo de plano',        w:8, n:'Proxy de ticket futuro e probabilidade de retenção contratual'},
+  ]
+},
+{
+  id:'credito', name:'Risco de crédito (Credit Scoring)', domain:'financeiro',
+  model:'Thomas et al. 2002 (5 Cs do crédito); Bacen NT 40/2022; Duarte et al. 2022 (J. Risk Fin. Mgmt)',
+  perf:'GINI=0,55–0,75 em scorecards brasileiros (Bacen NT40/2022). Score+histórico: GINI~0,68',
+  caveat:'Coeficientes variam por produto (cartão vs. consignado vs. pessoal) e instituição. Pesos refletem importância relativa típica na literatura Bacen.',
+  vars:[
+    {id:'score_cred',l:'Score de crédito',    w:34,n:'ΔGINI≈+0,15 vs. variáveis cadastrais puras — concentra histórico comportamental'},
+    {id:'inadimpl',  l:'Histórico inadimplência',w:22,n:'Acurácia 89,79% em banco português (Duarte 2022, PMC9041570)'},
+    {id:'uso_limite',l:'% uso do limite',     w:18,n:'r=0,58 com default em 6 meses — maior preditor comportamental (Bacen NT40/2022)'},
+    {id:'renda',     l:'Renda declarada',     w:12,n:'"Capacidade" — variável regulatória obrigatória (Res. CMN 4.966/2021)'},
+    {id:'dividas',   l:'Dívidas ativas',      w:8, n:'"Capital" — endividamento total reduz margem de segurança'},
+    {id:'hist_cred', l:'Histórico de crédito',w:6, n:'"Caráter" nos 5 Cs — tempo de relacionamento financeiro'},
+  ]
+},
+{
+  id:'inadimpl_i', name:'Inadimplência imediata (Behavioral)', domain:'financeiro',
+  model:'Siddiqi 2012 (Credit Risk Scorecards); Bacen EE80/2020 (Endividamento de Risco)',
+  perf:'GINI~0,68 com 5+ variáveis comportamentais. Critérios de inadimplência + multimodalidades: mais efetivos que critérios de renda (Bacen EE80/2020)',
+  caveat:'Behavioral scoring é mais preciso para clientes existentes do que para novos. Multimodalidades de crédito e inadimplência ativa são os maiores preditores — critérios de renda são menos efetivos do que se esperaria.',
+  vars:[
+    {id:'uso_limite',l:'% uso do limite',    w:32,n:'r=0,58 com default em 6 meses (Bacen NT40/2022)'},
+    {id:'inadimpl',  l:'Histórico inadimplência',w:28,n:'Maior preditor de recorrência — comportamento futuro reflete o passado'},
+    {id:'dividas',   l:'Dívidas ativas no CPF',w:18,n:'Endividamento corrente compromete margem de pagamento'},
+    {id:'parcelas',  l:'Parcelas ativas',    w:14,n:'ΔPD=+8–12% por produto adicional (Bacen EE80/2020)'},
+    {id:'renda',     l:'Renda declarada',    w:8, n:'Capacidade bruta — menos efetivo que os critérios comportamentais'},
+  ]
+},
+{
+  id:'geracao', name:'Geração demográfica', domain:'social',
+  model:'Pew Research Center 2019 (cortes por ano); MIT Media Lab 2021 (proxies digitais)',
+  perf:'Ano de nascimento: precisão 100%. Proxies digitais: ~61% (MIT Media Lab 2021)',
+  caveat:'Sem ano de nascimento ou idade exata, cobertura é baixa e resultado incerto. Proxies digitais (plataformas, streaming) têm precisão de ~61% — sinal fraco.',
+  vars:[
+    {id:'ano_nasc',   l:'Ano de nascimento',  w:80,n:'Determinístico — Alpha<2013, Z 1997–2012, Millennial 1981–1996, X 1965–1980, Boomer 1946–1964'},
+    {id:'idade',      l:'Idade',              w:15,n:'Equivalente ao ano se data de nascimento exata conhecida'},
+    {id:'plataformas',l:'Plataformas digitais',w:3,n:'~61% precisão para geração (MIT 2021) — proxy fraco isolado'},
+    {id:'streaming',  l:'Streaming assinado', w:2, n:'Indicador digital auxiliar com sinal muito fraco'},
+  ]
+},
+{
+  id:'vulnerabilidade', name:'Vulnerabilidade social (IVS)', domain:'social',
+  model:'IVS-IPEA 2022 — 3 dimensões: infraestrutura urbana, capital humano, renda e trabalho',
+  perf:'r=0,82 com mortalidade infantil; r=0,78 com analfabetismo no nível municipal (IPEA 2022)',
+  caveat:'Índice de área — representa contexto regional, não situação individual. Combine com dados de renda individual para maior precisão.',
+  vars:[
+    {id:'vulner_area',l:'IVS da área (IPEA)', w:30,n:'Dado direto do índice — se disponível, é o próprio output'},
+    {id:'idh',        l:'IDH do município',   w:22,n:'r=−0,91 com IVS municipal (IPEA 2022)'},
+    {id:'renda',      l:'Renda individual',   w:18,n:'Dimensão "renda e trabalho" representa 1/3 do IVS'},
+    {id:'cep',        l:'CEP',                w:12,n:'Localização geocodificada → busca direta no Atlas IVS-IPEA'},
+    {id:'renda_fam',  l:'Renda familiar',     w:10,n:'Contexto domiciliar complementar'},
+    {id:'escolaridade',l:'Escolaridade',      w:8, n:'Dimensão "capital humano" do IVS'},
+  ]
+},
+{
+  id:'genero_inf', name:'Gênero inferido', domain:'social',
+  model:'Análise onomástica PT-BR — Carvalho et al. 2020 (SBC); base de frequência IBGE',
+  perf:'Nome: 87–91% precisão (Carvalho 2020). Gênero declarado: 100%',
+  caveat:'Falha em nomes neutros, modernos e de origens indígena ou africana. Categorias de compra: r=0,44 com gênero — sinal fraco.',
+  vars:[
+    {id:'sexo',      l:'Sexo/gênero declarado',w:90,n:'Dado direto: 100% de precisão quando disponível'},
+    {id:'nome',      l:'Primeiro nome',         w:8, n:'Análise onomástica: 87–91% precisão em PT-BR (Carvalho 2020)'},
+    {id:'categorias',l:'Categorias de compra', w:2, n:'r=0,44 com gênero — auxiliar muito fraco; apenas quando declarado é indisponível'},
+  ]
+},
+{
+  id:'prop_premium', name:'Propensão a produtos premium', domain:'marketing',
+  model:'ANBIMA 2023 (Raio X do Investidor); McKinsey Digital Consumer Survey 2022',
+  perf:'Combinação renda + investimentos + pós-grad: OR>8 para propensão premium (ANBIMA 2023)',
+  caveat:'"Premium" varia por produto e setor. Pesos refletem importância relativa em serviços financeiros e bens duráveis — pode não se generalizar para outros segmentos.',
+  vars:[
+    {id:'renda',      l:'Renda declarada',     w:30,n:'Maior preditor de disposição a pagar (ANBIMA 2023)'},
+    {id:'pos_grad',   l:'Pós-graduação',       w:18,n:'Pós-graduados: 2,1× mais propensão a investir em renda variável (ANBIMA 2023)'},
+    {id:'investimentos',l:'Possui investimentos',w:20,n:'OR=4,2 para nova aquisição de produto financeiro (ANBIMA 2023)'},
+    {id:'patrimonio', l:'Patrimônio declarado', w:15,n:'OR=3,8 para investimento em renda variável'},
+    {id:'plano',      l:'Tipo de plano atual',  w:10,n:'Premium atual: indicador comportamental de disposição a pagar'},
+    {id:'ticket',     l:'Ticket médio',         w:7, n:'Spend histórico — proxy de capacidade de pagamento por produto'},
+  ]
+},
+// ── FENOTIPAGEM DIGITAL — ESTADOS MENTAIS ────────────────────────────────
+{
+  id:'depressao_triagem', name:'Triagem de depressão (fenotipagem)', domain:'saude_mental',
+  isMental:true,
+  model:'GPS+PHQ-9: Saeb et al. 2015 (PMC4526997); Meta-análise GPS: Terhorst et al. JMIR 2024 (k=19, n=2.930); Typing: BiAffect 2025 (PMC12412914)',
+  perf:'GPS + ritmo circadiano: AUC 0,94–0,99 em estudos supervisionados. Distância+ritmo: 85% acurácia (PMC6902121). Velocidade de digitação prediz PHQ-9 (BiAffect 2025).',
+  caveat:'TRIAGEM APENAS — nunca diagnóstico individual. Maioria dos estudos: n=7–30, amostras universitárias. Risco de viés de publicação documentado (JMIR 2024). Exige dados longitudinais (≥2 semanas). Correlações de GPS com depressão são pequenas a médias (r=−0,10 a −0,25). Requer consentimento e LGPD.',
+  alertCaveat:true,
+  vars:[
+    {id:'gps_distancia',    l:'Distância percorrida/dia',w:25,n:'r=−0,25 com PHQ-9 — maior preditor GPS (meta-análise n=2.930, Terhorst JMIR 2024)'},
+    {id:'ritmo_circadiano', l:'Regularidade circadiana', w:20,n:'r=−0,63 com PHQ-9 em n=28 (Saeb 2015) — irregularidade = sinal forte; não replicado em n grandes'},
+    {id:'gps_entropia',     l:'Entropia de localização', w:17,n:'r=−0,17 — mais locais variados associado a menos sintomas (meta-análise 2024)'},
+    {id:'velocidade_digitacao',l:'Velocidade de digitação',w:13,n:'Lentificação prediz PHQ-9 e função cognitiva em mood disorders (PMC12412914, 2025)'},
+    {id:'desbloqueios',     l:'Desbloqueios de tela/dia',w:10,n:'Correlaciona positivamente com depressão (Saeb 2015) — mais desbloqueios = mais sintomas'},
+    {id:'gps_homestay',     l:'Tempo em casa',           w:10,n:'r=+0,10 — retraimento domiciliar (meta-análise 2024); correlação pequena'},
+    {id:'passos_dia',       l:'Passos/dia',              w:5, n:'Atividade motora reduzida em episódios depressivos — complementar à GPS'},
+  ]
+},
+{
+  id:'ansiedade_triagem', name:'Triagem de ansiedade (fenotipagem)', domain:'saude_mental',
+  isMental:true,
+  model:'HRV: Tomasi et al. 2024 (Psychophysiology, n=240, CAMH); Deep HRV: Nath et al. 2020 (n=652); GAD: Jacobson et al. 2020 (JMIR, n=265)',
+  perf:'HRV deep learning (5 min): 83% acurácia (Nath 2020). HRV reduzida em TAG vs controles (Tomasi 2024). Sensibilidade 84% / especificidade 53% para GAD (Jacobson 2021).',
+  caveat:'Especificidade de 53% → muitos falsos positivos. HRV varia com idade, medicação e condicionamento físico — confundidores críticos que precisam de controle. TRIAGEM apenas. Consentimento e LGPD obrigatórios.',
+  alertCaveat:true,
+  vars:[
+    {id:'hrv',              l:'HRV (variabilidade cardíaca)',w:45,n:'Biomarcador mais validado para ansiedade. Deep learning 5min = 83% acurácia (Nath 2020, n=652)'},
+    {id:'duracao_sono_wearable',l:'Sono via wearable',       w:20,n:'Ciclo bidirecional HRV-sono-ansiedade — sono ruim reduz HRV no dia seguinte (Nature Scientific Data 2025)'},
+    {id:'passos_dia',       l:'Passos/dia',                  w:15,n:'Atividade física melhora tônus vagal — proxy de comportamento de coping'},
+    {id:'uso_noturno',      l:'Uso noturno do dispositivo',  w:12,n:'Uso após 22h: cronotipo noturno + piores índices de ansiedade (Biomedical Eng. Letters 2024)'},
+    {id:'ritmo_circadiano', l:'Regularidade circadiana',     w:8, n:'Irregularidade correlaciona com ansiedade em bipolar disorder (Braund JMIR Mental Health 2022)'},
+  ]
+},
+{
+  id:'humor_episodio', name:'Risco de episódio de humor (fenotipagem)', domain:'saude_mental',
+  isMental:true,
+  model:'Nour et al. 2024 (npj Digital Medicine, n=168, 587 dias); revisão: PMC10753422',
+  perf:'AUC=0,80 para episódio depressivo; AUC=0,98 para maníaco; AUC=0,95 para hipomaníaco — apenas sono + ritmo circadiano (Nour et al. npj Digital Medicine, Nov 2024)',
+  caveat:'Modelo desenvolvido para pacientes com diagnóstico ESTABELECIDO de transtorno do humor — não é triagem para população geral. Exige ≥14 dias de dados longitudinais e histórico de episódios anteriores. Alta acurácia para mania pode refletir o contraste marcado de comportamento no episódio. Consentimento e LGPD obrigatórios.',
+  alertCaveat:true,
+  vars:[
+    {id:'duracao_sono_wearable',l:'Duração e fase do sono', w:35,n:'Feature mais importante: fase atrasada = episódio depressivo; adiantada = maníaco (Nour 2024)'},
+    {id:'ritmo_circadiano', l:'Regularidade circadiana',    w:30,n:'Preditor mais significativo: shifts de fase predizem episódio no dia seguinte (AUC=0,98 para mania)'},
+    {id:'passos_dia',       l:'Passos/dia',                 w:15,n:'Reduzido = depressão; aumentado = mania — padrão invertido permite discriminar tipos de episódio'},
+    {id:'hrv',              l:'HRV',                        w:12,n:'Mudanças predizem piora: PPV=0,68–0,87; NPV=0,71–0,90 em APNS (ScienceDirect 2024)'},
+    {id:'contatos_bluetooth',l:'Contatos sociais (Bluetooth)',w:8,n:'Redução de interações presenciais: sinal de episódio depressivo. Nota: estudado principalmente em contexto hospitalar.'},
+  ]
+},
+];
+
+// ─── MODELOS L2 ───────────────────────────────────────────────────────────
+const L2=[
+{
+  id:'seg_cli', name:'Segmentação cliente (valor × risco)', domain:'marketing',
+  model:'FICO Score 10 Suite (Fair Isaac 2021)',
+  perf:'GINI~0,72 combinando SES + risco crédito + LTV',
+  caveat:'Incertezas das inferências de entrada se acumulam. Dimensões capturam aspectos diferentes: histórico (score), valor futuro (LTV), contexto social (SES).',
+  needs:['ses','credito','ltv'], min:2,
+  w:{'ses':0.30,'credito':0.35,'ltv':0.35},
+},
+{
+  id:'fraude', name:'Risco de fraude', domain:'financeiro',
+  model:'Phua et al. SIGKDD 2010; FEBRABAN 2023',
+  perf:'AUC=0,92 com dados comportamentais + crédito (Phua 2010)',
+  caveat:'Modelos de fraude degradam rapidamente com mudança de comportamento dos fraudadores. Necessita atualização contínua.',
+  needs:['credito','inadimpl_i','ses_geo'], min:2,
+  w:{'credito':0.40,'inadimpl_i':0.35,'ses_geo':0.25},
+},
+{
+  id:'upsell', name:'Potencial de upsell / cross-sell', domain:'marketing',
+  model:'Neslin et al. 2006 (J. Marketing Research); McKinsey 2022',
+  perf:'Lift >3× sobre baseline (Neslin 2006)',
+  caveat:'Lift de 3× é para modelos otimizados em histórico próprio. Generaliza mal para novos produtos sem calibração.',
+  needs:['ltv','churn','ses'], min:2,
+  w:{'ltv':0.40,'churn':0.35,'ses':0.25},
+},
+{
+  id:'saude_integrada', name:'Saúde física integrada (CV + metabólico)', domain:'saude',
+  model:'GBD 2019 (Lancet 396:10258); OMS SDH 2008',
+  perf:'AUC=0,78 para DALY com fatores metabólicos + CV (GBD 2019)',
+  caveat:'DALY é métrica populacional — aplicação individual exige cautela. Framingham: 30–74 anos sem DCV prévia. FINDRISC: adultos sem diagnóstico de DM. Populações-alvo diferentes.',
+  needs:['cardio','diabetes_r'], min:2,
+  w:{'cardio':0.55,'diabetes_r':0.45},
+},
+{
+  id:'saude_mental_integrada', name:'Triagem de saúde mental integrada', domain:'saude_mental',
+  isMental:true,
+  model:'Combinação de biomarcadores digitais: GPS + HRV + sono + digitação',
+  perf:'Modelos multimodais (GPS + HRV + sono) em estudos controlados: AUC 0,85–0,94. Generalização para população geral: limitada e não estabelecida.',
+  caveat:'TRIAGEM APENAS. Os pesos 50/50 são heurísticos — não há estudo publicado que os estabeleça. Combina inferências que já têm alta incerteza individual. Nunca usar para decisões sobre indivíduos sem revisão clínica.',
+  alertCaveat:true,
+  needs:['depressao_triagem','ansiedade_triagem'], min:2,
+  w:{'depressao_triagem':0.50,'ansiedade_triagem':0.50},
+},
+{
+  id:'incl_fin', name:'Inclusão financeira (IIF)', domain:'financeiro',
+  model:'IIF Bacen 2021 — acesso, uso e qualidade do sistema financeiro',
+  perf:'r=0,79 com IIF real municipal (Bacen 2021). Cada dimensão isolada: r<0,60',
+  caveat:'Índice municipal — variações intramunicipais não são captadas pelo modelo.',
+  needs:['ses_geo','credito','ses'], min:2,
+  w:{'ses_geo':0.35,'credito':0.35,'ses':0.30},
+},
+{
+  id:'cli_premium', name:'Potencial cliente premium', domain:'marketing',
+  model:'McKinsey Digital Consumer Survey 2022; ANBIMA 2023',
+  perf:'GINI=0,65 em modelo logístico (McKinsey 2022)',
+  caveat:'"Premium" varia por produto. Calibrado para serviços financeiros e bens duráveis — não generaliza sem recalibração.',
+  needs:['ses','ltv','credito'], min:2,
+  w:{'ses':0.35,'ltv':0.35,'credito':0.30},
+},
+];
+
+// ─── MODELOS L3 ───────────────────────────────────────────────────────────
+const L3=[
+{
+  id:'perfil_360', name:'Perfil 360° do indivíduo', domain:'marketing',
+  model:'Customer 360 — Salesforce Research 2022; IDS-IPEA',
+  perf:'Redução de 38% no erro de segmentação vs. modelos unidimensionais (Salesforce 2022)',
+  caveat:'Constructo analítico, não modelo validado em população específica. Incertezas se acumulam em cada nível de composição.',
+  needs:['seg_cli','saude_integrada','incl_fin'], min:2,
+  w:{'seg_cli':0.40,'saude_integrada':0.30,'incl_fin':0.30},
+},
+{
+  id:'risco_sist', name:'Risco sistêmico de crédito', domain:'financeiro',
+  model:'Bacen + FEBRABAN 2022 — modelo macro-prudencial de portfólio',
+  perf:'AUC=0,88 combinando segmentação + fraude + inclusão (Bacen/FEBRABAN 2022)',
+  caveat:'Opera no nível de portfólio — extrapolação para decisões individuais é metodologicamente inadequada.',
+  needs:['seg_cli','fraude','incl_fin'], min:2,
+  w:{'fraude':0.45,'seg_cli':0.35,'incl_fin':0.20},
+},
+];
+
+// ─── HELPERS PUROS ───────────────────────────────────────────────────────
+const DLBL={marketing:'Marketing',financeiro:'Financeiro',social:'Social',saude:'Saúde',digital:'Digital',saude_mental:'Saúde mental'};
+const domLbl=d=>DLBL[d]||d;
+const covColor=p=>p>=80?'#1D9E75':p>=50?'#BA7517':'#E24B4A';
+const covCls=p=>p>=80?'cov-h':p>=50?'cov-m':'cov-l';
+const covTxt=p=>p>=80?'cobertura alta':p>=50?'cobertura parcial':'cobertura baixa';
+
+function calcCov(vars,fa){
+  const tot=vars.reduce((s,v)=>s+v.w,0);
+  const got=vars.filter(v=>fa.includes(v.id)).reduce((s,v)=>s+v.w,0);
+  return Math.round(got/tot*100);
+}
+
+// Todos os IDs que aparecem em algum modelo
+const MODEL_IDS=new Set();
+[...L1,...L2,...L3].forEach(m=>{
+  if(m.vars) m.vars.forEach(v=>MODEL_IDS.add(v.id));
+  if(m.needs) m.needs.forEach(n=>MODEL_IDS.add(n));
+});
+
+// Dado ativo (selecionado) que não aparece em nenhum modelo L1
+function findOrphans(fa){
+  return fa.filter(id=>{
+    const inAny=L1.some(m=>m.vars.some(v=>v.id===id));
+    return !inAny;
+  }).map(id=>DT.find(d=>d.id===id)?.n).filter(Boolean);
+}
+
+// Dados ausentes que aumentariam cobertura de um modelo N1 JÁ INICIADO
+// (que já tem pelo menos 1 dado selecionado).
+// Retorna Map: dataId → {modelName, gain}  — só modelos parcialmente ativos.
+// NÃO sugere dados de modelos completamente sem nenhum dado selecionado.
+function findUnlockHints(fa){
+  const map=new Map();
+  L1.forEach(m=>{
+    // Modelo precisa ter pelo menos 1 dado já selecionado para gerar hint
+    const present=m.vars.filter(v=>fa.includes(v.id));
+    if(present.length===0) return; // completamente inativo — sem hint
+    const absent=m.vars.filter(v=>!fa.includes(v.id));
+    absent.forEach(v=>{
+      const existing=map.get(v.id);
+      // Guarda o modelo com maior ganho para este dado
+      if(!existing || v.w > existing.gain){
+        map.set(v.id,{modelName:m.name, gain:v.w});
+      }
+    });
+  });
+  return map; // Map<dataId, {modelName, gain}>
+}
+
+// ─── ESTADO ──────────────────────────────────────────────────────────────
+let sel=new Set(), af='all', st='', rfDom='all';
+let _hints=new Map(); // Map<dataId, Set<modelName>>
+let _openVars=new Set(); // cards com variáveis expandidas
+let _openNotes=new Map(); // {cardId: Set de index de var expandida}
+
+function recompute(){
+  _hints=findUnlockHints([...sel]);
+  // notices
+  const fa=[...sel];
+  const hasFen=fa.some(id=>DT.find(d=>d.id===id&&d.c==='fen'));
+  document.getElementById('n-mental').style.display=hasFen?'block':'none';
+  const orphans=findOrphans(fa);
+  const no=document.getElementById('n-orphan');
+  if(orphans.length&&fa.length){
+    no.style.display='block';
+    document.getElementById('orphan-list').textContent=orphans.join(', ')+' — esses dados não aparecem em nenhum modelo disponível.';
+  } else {
+    no.style.display='none';
+  }
+}
+
+// ─── RENDER FILTROS ──────────────────────────────────────────────────────
+function renderF(){
+  const tabs=[{k:'all',l:'Todos'},...Object.entries(CATS).map(([k,v])=>({k,l:v.l}))];
+  document.getElementById('ftabs').innerHTML=tabs.map(t=>
+    `<button class="ftab${af===t.k?' on':''}" onclick="sf('${t.k}')">${t.l}</button>`
+  ).join('');
+}
+function sf(k){af=k;renderF();renderC();}
+function fc(){st=document.getElementById('srch').value.toLowerCase();renderC();}
+
+// ─── RENDER GRID DE DADOS ────────────────────────────────────────────────
+function renderC(){
+  const fa=[...sel];
+  const items=DT.filter(d=>(af==='all'||d.c===af)&&(!st||d.n.toLowerCase().includes(st)||d.d.toLowerCase().includes(st)));
+  document.getElementById('gc').textContent=`(${items.length} de ${DT.length})`;
+  document.getElementById('cgrid').innerHTML=items.map(d=>{
+    const cat=CATS[d.c]||{l:d.c,bg:'#eee',tc:'#333'};
+    const isOn=sel.has(d.id);
+    const isOrphan=isOn&&!L1.some(m=>m.vars.some(v=>v.id===d.id));
+    const isHint=_hints.has(d.id)&&!isOn;
+    let cls='dc';
+    if(isOn) cls+=isOrphan?' on orphan':' on';
+    if(isHint) cls+=' hint';
+    let sub='';
+    if(isHint){
+      const {modelName, gain}=_hints.get(d.id);
+      sub=`<div class="dc-sub hint-txt">▸ +${gain}% em "${modelName}"</div>`;
+    } else if(isOrphan){
+      sub=`<div class="dc-sub orphan-txt">⚠ sem modelo disponível</div>`;
+    }
+    return`<div class="${cls}" onclick="tog('${d.id}')">
+      <div class="dct"><span class="dcn">${d.n}</span><span class="dcb" style="background:${cat.bg};color:${cat.tc}">${cat.l}</span></div>
+      <div class="dcd">${d.d}</div>${sub}
+    </div>`;
+  }).join('');
+}
+
+// ─── RENDER TAGS SELECIONADOS ────────────────────────────────────────────
+function renderT(){
+  document.getElementById('sc').textContent=sel.size;
+  const w=document.getElementById('stags');
+  if(!sel.size){
+    w.innerHTML='<span style="font-size:11px;color:#ccc">Clique nos cartões acima para selecionar dados</span>';
+    return;
+  }
+  w.innerHTML=[...sel].map(id=>{
+    const d=DT.find(x=>x.id===id);
+    return d?`<span class="stag">${d.n}<em onclick="togSel('${id}')">×</em></span>`:'';
+  }).join('');
+}
+
+// ─── TOGGLE ──────────────────────────────────────────────────────────────
+function tog(id){togSel(id);}
+function togSel(id){
+  sel.has(id)?sel.delete(id):sel.add(id);
+  recompute();
+  renderC();renderT();
+  if(sel.size>0) run();
+  else document.getElementById('rarea').innerHTML='';
+}
+
+function clearAll(){
+  sel.clear();_hints=new Map();
+  recompute();renderC();renderT();
+  document.getElementById('rarea').innerHTML='';
+  rfDom='all';
+}
+
+// ─── TOGGLE VARS CARD (passado via data-attr) ────────────────────────────
+function toggleVars(mid){
+  _openVars.has(mid)?_openVars.delete(mid):_openVars.add(mid);
+  // Re-render só o card seria complexo; re-run é mais simples e rápido
+  run();
+}
+
+function toggleNote(mid,idx){
+  if(!_openNotes.has(mid)) _openNotes.set(mid,new Set());
+  const s=_openNotes.get(mid);
+  s.has(idx)?s.delete(idx):s.add(idx);
+  run();
+}
+
+// ─── RENDER CARD L1 ──────────────────────────────────────────────────────
+function renderL1(inf,fa){
+  const cov=calcCov(inf.vars,fa);
+  if(!inf.vars.some(v=>fa.includes(v.id))) return '';
+  const maxW=Math.max(...inf.vars.map(v=>v.w));
+  const isOpen=_openVars.has(inf.id);
+  const openNotes=_openNotes.get(inf.id)||new Set();
+  const domBdg=inf.isMental?`<span class="bdg bdg-m">saúde mental</span>`
+    :`<span class="bdg" style="background:#f5f5f0;color:#666">${domLbl(inf.domain)}</span>`;
+
+  const varsHtml=inf.vars.map((v,i)=>{
+    const p=fa.includes(v.id);
+    const noteOpen=openNotes.has(i);
+    return`<div class="vrow${noteOpen?' expanded':''}" onclick="toggleNote('${inf.id}',${i})" title="Clique para ver nota científica">
+      <span class="vn">${v.l}</span>
+      <div class="vbar"><div class="vfill ${p?'p':'a'}" style="width:${Math.round(v.w/maxW*100)}%"></div></div>
+      <span class="vpct">${v.w}%</span>
+      <span class="vtag ${p?'p':'a'}">${p?'✓':'—'}</span>
+      <div class="vnote">${v.n}</div>
+    </div>`;
+  }).join('');
+
+  const absent=inf.vars.filter(v=>!fa.includes(v.id)).sort((a,b)=>b.w-a.w).slice(0,3);
+  const missHtml=absent.length
+    ?`<div class="miss">Adicionar para ↑ cobertura: ${absent.map(v=>`<span class="miss-item" onclick="event.stopPropagation();togSel('${v.id}')">${v.l} <strong>+${v.w}%</strong></span>`).join('')}</div>`:'';
+
+  return`<div class="rc${inf.isMental?' mental':''}">
+    <div class="rtop">
+      <span class="rname">${inf.name}</span>
+      <div class="rbadges"><span class="bdg bl1">N1</span>${domBdg}</div>
+    </div>
+    <div class="cov-row">
+      <div class="cov-bar-bg"><div class="cov-bar-fill" style="width:${cov}%;background:${covColor(cov)}"></div></div>
+      <span class="cov-pct" style="color:${covColor(cov)}">${cov}%</span>
+    </div>
+    <span class="cov-st ${covCls(cov)}">${covTxt(cov)} — ${inf.vars.filter(v=>fa.includes(v.id)).length}/${inf.vars.length} variáveis presentes</span>
+    <div class="vt" onclick="toggleVars('${inf.id}')">
+      <span class="va${isOpen?' open':''}">▶</span>
+      <span>variáveis do modelo</span>
+      <span style="color:#bbb;font-size:9px;margin-left:4px">(clique numa linha para ver fonte)</span>
+    </div>
+    <div class="vgrid${isOpen?' open':''}">
+      ${varsHtml}
+      ${missHtml}
+    </div>
+    <div class="rft">
+      <div class="rmod"><strong>Modelo:</strong> ${inf.model}</div>
+      <div class="rperf"><strong>Desempenho:</strong> ${inf.perf}</div>
+      <div class="rcav${inf.alertCaveat?' alert':''}">${inf.caveat}</div>
+    </div>
+  </div>`;
+}
+
+// ─── RENDER CARD N2/N3 ───────────────────────────────────────────────────
+function renderComposed(inf,l1cov,allCov,level){
+  const avail=inf.needs.filter(n=>allCov[n]!==undefined);
+  if(avail.length<inf.min) return '';
+  const wSum=avail.reduce((s,n)=>s+inf.w[n],0);
+  const avgCov=Math.round(avail.reduce((s,n)=>s+allCov[n]*inf.w[n],0)/wSum);
+
+  // Mapa de nome de inferência
+  const nmap={};[...L1,...L2].forEach(x=>nmap[x.id]=x.name);
+
+  // Para cada inferência N1 que entra neste modelo, listar os dados originais
+  // que o usuário tem selecionados
+  const fa=[...sel];
+  const combBlocks=avail.map(nid=>{
+    const n1=L1.find(m=>m.id===nid)||L2.find(m=>m.id===nid);
+    const cov=Math.round(allCov[nid]);
+    const presentVars=n1?.vars
+      ? n1.vars.filter(v=>fa.includes(v.id)).map(v=>v.l)
+      : [];
+    const varsText=presentVars.length
+      ? `<span class="comb-vars">${presentVars.join(', ')}</span>`
+      : '';
+    return`<div class="comb-block">
+      <div class="comb-name">${nmap[nid]||nid} <span class="comb-cov" style="color:${covColor(cov)}">${cov}%</span></div>
+      ${varsText}
+    </div>`;
+  }).join('');
+
+  const domBdg=inf.isMental?`<span class="bdg bdg-m">saúde mental</span>`
+    :`<span class="bdg" style="background:#f5f5f0;color:#666">${domLbl(inf.domain)}</span>`;
+  const lvlCls=level===2?'bl2':'bl3';
+
+  return`<div class="rc${inf.isMental?' mental':''}">
+    <div class="rtop">
+      <span class="rname">${inf.name}</span>
+      <div class="rbadges"><span class="bdg ${lvlCls}">N${level}</span>${domBdg}</div>
+    </div>
+    <div class="cov-row">
+      <div class="cov-bar-bg"><div class="cov-bar-fill" style="width:${avgCov}%;background:${covColor(avgCov)}"></div></div>
+      <span class="cov-pct" style="color:${covColor(avgCov)}">${avgCov}%</span>
+    </div>
+    <span class="cov-st ${covCls(avgCov)}">${covTxt(avgCov)}</span>
+    <div class="comb-section">
+      <div class="comb-label">Inferências combinadas:</div>
+      ${combBlocks}
+    </div>
+    <div class="rft">
+      <div class="rmod"><strong>Modelo:</strong> ${inf.model}</div>
+      <div class="rperf"><strong>Desempenho:</strong> ${inf.perf}</div>
+      <div class="rcav${inf.alertCaveat?' alert':''}">${inf.caveat}</div>
+    </div>
+  </div>`;
+}
+
+// ─── CALCULAR E RENDERIZAR ───────────────────────────────────────────────
+function run(){
+  const area=document.getElementById('rarea');
+  const fa=[...sel];
+  if(!fa.length){area.innerHTML='';return;}
+
+  const l1cov={},l1out=[];
+  L1.forEach(inf=>{
+    if(!inf.vars.some(v=>fa.includes(v.id))) return;
+    const cov=calcCov(inf.vars,fa);
+    if(cov<5) return;
+    l1cov[inf.id]=cov;
+    l1out.push(inf);
+  });
+
+  const l2cov={},l2out=[];
+  L2.forEach(inf=>{
+    const avail=inf.needs.filter(n=>l1cov[n]!==undefined);
+    if(avail.length<inf.min) return;
+    const wSum=avail.reduce((s,n)=>s+inf.w[n],0);
+    const avgCov=Math.round(avail.reduce((s,n)=>s+l1cov[n]*inf.w[n],0)/wSum);
+    l2cov[inf.id]=avgCov;
+    l2out.push(inf);
+  });
+
+  const allCov={...l1cov,...l2cov};
+  const l3out=[];
+  L3.forEach(inf=>{
+    const avail=inf.needs.filter(n=>allCov[n]!==undefined);
+    if(avail.length<inf.min) return;
+    l3out.push(inf);
+  });
+
+  const total=l1out.length+l2out.length+l3out.length;
+  if(!total){
+    area.innerHTML='<div class="empty">Nenhum modelo mapeado para esses dados. Tente adicionar dados de saúde, comportamento, crédito ou fenotipagem.</div>';
+    return;
+  }
+
+  // Ordenar por cobertura descrescente dentro de cada nível
+  const byCov=(a,b)=>l1cov[b.id]||l2cov[b.id]||0-(l1cov[a.id]||l2cov[a.id]||0);
+  const sortedL1=[...l1out].sort((a,b)=>(l1cov[b.id]||0)-(l1cov[a.id]||0));
+  const sortedL2=[...l2out].sort((a,b)=>(l2cov[b.id]||0)-(l2cov[a.id]||0));
+  const sortedL3=[...l3out].sort((a,b)=>{
+    const ca=allCov[a.needs?.find(n=>allCov[n])]||0;
+    const cb=allCov[b.needs?.find(n=>allCov[n])]||0;
+    return cb-ca;
+  });
+
+  const hiCov=[...l1out,...l2out,...l3out].filter(r=>(l1cov[r.id]||l2cov[r.id]||0)>=80).length;
+  const all=[...l1out,...l2out,...l3out];
+  const domains=[...new Set(all.map(r=>r.domain))];
+
+  // Filtro de domínio
+  if(!domains.includes(rfDom)) rfDom='all';
+  const rfHtml=`<span style="font-size:10px;color:#aaa;margin-right:4px">Domínio:</span>
+    <button class="rftab${rfDom==='all'?' on':''}" onclick="setRF('all')">Todos (${total})</button>`+
+    domains.map(d=>{
+      const n=all.filter(r=>r.domain===d).length;
+      return`<button class="rftab${rfDom===d?' on':''}" onclick="setRF('${d}')">${domLbl(d)} (${n})</button>`;
+    }).join('');
+
+  function flt(items){return rfDom==='all'?items:items.filter(r=>r.domain===rfDom);}
+  function grp(items,label,hdCls,fn){
+    const f=flt(items);
+    if(!f.length) return '';
+    return`<div class="sg"><div class="sg-hd ${hdCls}"><span class="sg-t">${label}</span><span class="sg-c">${f.length} modelo${f.length>1?'s':''}</span></div>${f.map(fn).join('')}</div>`;
+  }
+
+  area.innerHTML=`
+    <div class="res-stats">
+      <div class="rs"><div class="rs-n">${total}</div><div class="rs-l">modelos aplicáveis</div></div>
+      <div class="rs"><div class="rs-n" style="color:#0F6E56">${hiCov}</div><div class="rs-l">cobertura ≥80%</div></div>
+      <div class="rs"><div class="rs-n" style="color:#534AB7">${l2out.length+l3out.length}</div><div class="rs-l">compostos (N2/N3)</div></div>
+    </div>
+    <div class="res-filter">${rfHtml}</div>
+    ${grp(sortedL1,'N1 — Inferências primárias (dados brutos)','sg-l1',r=>renderL1(r,fa))}
+    ${grp(sortedL2,'N2 — Inferências compostas (combinam N1)','sg-l2',r=>renderComposed(r,l1cov,allCov,2))}
+    ${grp(sortedL3,'N3 — Meta-inferências (combinam N2)','sg-l3',r=>renderComposed(r,l2cov,allCov,3))}`;
+}
+
+function setRF(d){rfDom=d;run();}
+
+// ─── INIT ──────────────────────────────────────────────────────────────
+renderF();renderC();renderT();
+</script>
+</body>
+</html>

@@ -1,0 +1,1879 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Documentação de Referência — Engine de Inferência Estatística</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Source+Serif+4:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0f0e0c;
+  --paper:#f8f6f0;
+  --rule:#d8d4c8;
+  --accent:#c8401a;
+  --accent2:#1a5fc8;
+  --muted:#8a8680;
+  --n1:#1a5fc8;
+  --n2:#6b3fb5;
+  --n3:#b54000;
+  --geo:#0a6640;--demo:#1a4fa0;--econ:#8a4500;--beh:#5a3fa0;
+  --sau:#9a2020;--fin:#2a6020;--edu:#8a2060;--dig:#4a4a44;--fen:#2a3aa0;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  font-family:'Source Serif 4',Georgia,serif;
+  background:var(--paper);
+  color:var(--ink);
+  font-size:15px;
+  line-height:1.7;
+}
+
+/* ── LAYOUT ─────────────────────────────── */
+.wrap{max-width:1100px;margin:0 auto;padding:0 2rem}
+
+/* ── MASTHEAD ────────────────────────────── */
+.masthead{
+  border-bottom:3px solid var(--ink);
+  padding:3rem 0 2rem;
+  margin-bottom:3rem;
+}
+.masthead-inner{max-width:1100px;margin:0 auto;padding:0 2rem;display:flex;justify-content:space-between;align-items:flex-end;gap:2rem;flex-wrap:wrap}
+.masthead-title{font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(28px,4vw,48px);line-height:1.05;letter-spacing:-.02em}
+.masthead-title span{color:var(--accent)}
+.masthead-meta{font-size:12px;color:var(--muted);text-align:right;line-height:1.8;font-family:'Syne',sans-serif;letter-spacing:.05em;text-transform:uppercase}
+
+/* ── INTRO ───────────────────────────────── */
+.intro{
+  display:grid;grid-template-columns:1fr 1fr;gap:3rem;
+  padding-bottom:3rem;border-bottom:1px solid var(--rule);margin-bottom:3rem
+}
+@media(max-width:700px){.intro{grid-template-columns:1fr}}
+.intro-lead{font-size:17px;line-height:1.7;color:var(--ink)}
+.intro-lead strong{font-weight:600}
+.intro-box{background:#fff;border:1px solid var(--rule);border-radius:4px;padding:1.5rem}
+.intro-box h3{font-family:'Syne',sans-serif;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:1rem}
+.level-row{display:flex;align-items:baseline;gap:.8rem;padding:.4rem 0;border-bottom:1px solid var(--rule)}
+.level-row:last-child{border-bottom:none}
+.lbadge{font-family:'Syne',sans-serif;font-weight:700;font-size:11px;padding:2px 7px;border-radius:2px;letter-spacing:.05em;flex-shrink:0}
+.lbadge.n1{background:#ddeaff;color:var(--n1)}
+.lbadge.n2{background:#ede0ff;color:var(--n2)}
+.lbadge.n3{background:#ffe8d8;color:var(--n3)}
+.level-desc{font-size:13px;color:var(--ink)}
+
+/* ── NAV LATERAL / ANCHORS ───────────────── */
+.toc{
+  background:#fff;border:1px solid var(--rule);padding:1.5rem;
+  border-radius:4px;margin-bottom:3rem;
+}
+.toc h3{font-family:'Syne',sans-serif;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:1rem}
+.toc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:.3rem}
+.toc a{font-size:13px;color:var(--accent2);text-decoration:none;display:block;padding:2px 0}
+.toc a:hover{text-decoration:underline}
+
+/* ── SECTION ─────────────────────────────── */
+.section{margin-bottom:4rem}
+.section-head{
+  display:flex;align-items:baseline;gap:1rem;
+  border-bottom:2px solid var(--ink);
+  padding-bottom:.5rem;margin-bottom:2rem
+}
+.section-head h2{font-family:'Syne',sans-serif;font-weight:800;font-size:22px;letter-spacing:-.01em}
+.section-head .sh-note{font-size:12px;color:var(--muted);font-family:'Syne',sans-serif;letter-spacing:.04em;text-transform:uppercase;margin-left:auto}
+
+/* ── TABELA DADOS ────────────────────────── */
+.data-table{width:100%;border-collapse:collapse;font-size:13px;background:#fff;border:1px solid var(--rule)}
+.data-table thead tr{background:var(--ink);color:var(--paper)}
+.data-table thead th{padding:9px 12px;text-align:left;font-family:'Syne',sans-serif;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase}
+.data-table tbody tr{border-bottom:1px solid var(--rule)}
+.data-table tbody tr:last-child{border-bottom:none}
+.data-table tbody tr:hover{background:#faf9f5}
+.data-table td{padding:8px 12px;vertical-align:top;line-height:1.5}
+.data-table td.name{font-weight:600;color:var(--ink);white-space:nowrap}
+.data-table td.desc{color:#444;font-size:12px}
+.data-table td.note{font-size:11px;color:var(--muted);font-style:italic}
+.data-table td.ref{font-size:11px;color:var(--ink)}
+.cat-tag{display:inline-block;font-family:'Syne',sans-serif;font-size:9px;font-weight:700;padding:1px 5px;border-radius:2px;letter-spacing:.04em;text-transform:uppercase;margin-top:1px;white-space:nowrap}
+.cat-geo{background:#d8f0e8;color:var(--geo)}
+.cat-demo{background:#d8e8f8;color:var(--demo)}
+.cat-econ{background:#f8ead8;color:var(--econ)}
+.cat-beh{background:#ede8ff;color:var(--beh)}
+.cat-sau{background:#f8e0e0;color:var(--sau)}
+.cat-fin{background:#e0f0d8;color:var(--fin)}
+.cat-edu{background:#f8e0f0;color:var(--edu)}
+.cat-dig{background:#ece8e0;color:var(--dig)}
+.cat-fen{background:#e0e4ff;color:var(--fen)}
+
+/* ── CARDS DE MODELO ─────────────────────── */
+.models-grid{display:grid;grid-template-columns:1fr;gap:1.5rem}
+.model-card{background:#fff;border:1px solid var(--rule);border-radius:4px;overflow:hidden}
+.model-card-head{
+  display:flex;align-items:center;gap:1rem;
+  padding:.8rem 1.2rem;border-bottom:1px solid var(--rule);
+  background:#faf9f5
+}
+.model-card-head .mnbadge{font-family:'Syne',sans-serif;font-weight:700;font-size:10px;padding:2px 7px;border-radius:2px;letter-spacing:.05em;flex-shrink:0}
+.mnbadge.n1{background:#ddeaff;color:var(--n1)}
+.mnbadge.n2{background:#ede0ff;color:var(--n2)}
+.mnbadge.n3{background:#ffe8d8;color:var(--n3)}
+.model-card-head .mname{font-family:'Syne',sans-serif;font-weight:700;font-size:15px;flex:1}
+.model-card-head .mdom{font-size:11px;color:var(--muted);font-family:'Syne',sans-serif;letter-spacing:.04em;text-transform:uppercase}
+.model-card-body{display:grid;grid-template-columns:1fr 1fr;gap:0}
+@media(max-width:700px){.model-card-body{grid-template-columns:1fr}}
+.model-col{padding:1.2rem;border-right:1px solid var(--rule)}
+.model-col:last-child{border-right:none}
+.model-col h4{font-family:'Syne',sans-serif;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:.7rem}
+.model-col p{font-size:13px;line-height:1.6;color:#333}
+.model-col .metric{font-size:13px;font-weight:600;color:var(--n1);font-family:'Syne',sans-serif}
+.model-col .caveat{font-size:12px;color:var(--muted);line-height:1.6;font-style:italic}
+.model-col .caveat.alert{color:#9a2020;background:#fff0f0;padding:6px 8px;border-radius:3px;border-left:2px solid #c84040;font-style:normal;font-weight:500}
+.var-list{display:flex;flex-direction:column;gap:4px}
+.var-item{display:grid;grid-template-columns:1fr auto;align-items:center;gap:8px;font-size:12px;padding:4px 0;border-bottom:1px dotted var(--rule)}
+.var-item:last-child{border-bottom:none}
+.var-name{color:#333}
+.var-weight{font-family:'Syne',sans-serif;font-weight:700;font-size:11px;color:var(--ink);text-align:right;white-space:nowrap}
+.var-weight-bar{width:60px;height:3px;background:var(--rule);border-radius:2px;overflow:hidden;margin-left:auto}
+.var-weight-fill{height:100%;background:var(--n1);border-radius:2px}
+.model-full-cols{grid-column:1/-1}
+.needs-list{display:flex;gap:.5rem;flex-wrap:wrap}
+.need-tag{font-size:12px;font-family:'Syne',sans-serif;font-weight:600;background:#faf0ff;border:1px solid #c8a8e8;border-radius:2px;padding:2px 8px;color:var(--n2)}
+
+/* ── TABELA REFS ─────────────────────────── */
+.ref-table{width:100%;border-collapse:collapse;font-size:12px;background:#fff;border:1px solid var(--rule)}
+.ref-table thead tr{background:var(--ink);color:var(--paper)}
+.ref-table thead th{padding:8px 12px;text-align:left;font-family:'Syne',sans-serif;font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase}
+.ref-table tbody tr{border-bottom:1px solid var(--rule)}
+.ref-table tbody tr:last-child{border-bottom:none}
+.ref-table tbody tr:hover{background:#faf9f5}
+.ref-table td{padding:8px 12px;vertical-align:top;line-height:1.5}
+.ref-table td.rcode{font-family:'Syne',sans-serif;font-weight:700;font-size:10px;color:var(--muted);white-space:nowrap}
+.ref-table td.rcite{color:#333;font-size:12px}
+.ref-table td.rmetric{font-family:'Syne',sans-serif;font-weight:600;font-size:11px;color:var(--n1);white-space:nowrap}
+.ref-table td.ruse{font-size:11px;color:var(--muted)}
+
+/* ── AVISO ÉTICO ─────────────────────────── */
+.ethics-box{
+  background:#fff8f0;border:2px solid #d88040;border-radius:4px;
+  padding:1.5rem 2rem;margin-bottom:3rem
+}
+.ethics-box h3{font-family:'Syne',sans-serif;font-weight:800;font-size:14px;letter-spacing:.06em;text-transform:uppercase;color:#9a4000;margin-bottom:.8rem}
+.ethics-box p{font-size:13px;line-height:1.7;color:#5a3000;margin-bottom:.5rem}
+.ethics-box p:last-child{margin-bottom:0}
+
+/* ── FOOTER ──────────────────────────────── */
+.footer{border-top:3px solid var(--ink);padding:2rem 0;margin-top:4rem}
+.footer-inner{max-width:1100px;margin:0 auto;padding:0 2rem;display:flex;justify-content:space-between;align-items:center;gap:2rem;flex-wrap:wrap}
+.footer-note{font-size:12px;color:var(--muted);font-family:'Syne',sans-serif;letter-spacing:.04em}
+
+/* ── GRUPO DE CATEGORIAS ─────────────────── */
+.cat-group{margin-bottom:.5rem}
+.cat-group-label{font-family:'Syne',sans-serif;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);padding:6px 12px;background:#faf9f5;border-bottom:1px solid var(--rule)}
+
+/* ── PRINT ───────────────────────────────── */
+@media print{
+  .toc{display:none}
+  body{font-size:11px}
+  .masthead{padding:1.5rem 0}
+}
+
+/* ── FORMULAÇÃO MATEMÁTICA ───────────────── */
+.formula-hero{
+  background:#fff;border:2px solid var(--ink);border-radius:4px;
+  padding:2.5rem 3rem;margin-bottom:2rem;text-align:center
+}
+.formula-label{
+  font-family:'Syne',sans-serif;font-size:11px;font-weight:700;
+  letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:1.5rem
+}
+.formula-display{
+  font-family:'Source Serif 4',Georgia,serif;font-size:clamp(28px,4vw,44px);
+  font-weight:300;color:var(--ink);line-height:1.2;margin-bottom:2rem;
+  display:flex;align-items:center;justify-content:center;gap:.6rem;flex-wrap:wrap
+}
+.formula-display-sm{
+  font-size:clamp(22px,3vw,34px);margin:1.2rem 0
+}
+.frac{
+  display:inline-flex;flex-direction:column;align-items:center;
+  vertical-align:middle;margin:0 .3rem
+}
+.frac-num{
+  border-bottom:2px solid var(--ink);padding:.1rem .4rem;font-size:.85em
+}
+.frac-den{padding:.1rem .4rem;font-size:.85em}
+.formula-legend{
+  display:grid;grid-template-columns:auto 1fr;
+  gap:.4rem 1.2rem;text-align:left;max-width:600px;margin:0 auto
+}
+.legend-row{display:contents}
+.legend-sym{
+  font-family:'Source Serif 4',serif;font-size:15px;font-weight:600;
+  color:var(--accent2);white-space:nowrap;padding-top:1px
+}
+.legend-def{font-size:13px;color:#444;line-height:1.5}
+
+.formula-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-bottom:1.5rem}
+@media(max-width:700px){.formula-grid{grid-template-columns:1fr}}
+.formula-block{
+  background:#fff;border:1px solid var(--rule);border-radius:4px;padding:1.5rem
+}
+.formula-block-wide{
+  background:#fff;border:1px solid var(--rule);border-radius:4px;
+  padding:1.5rem;margin-bottom:1.5rem
+}
+.formula-block h3,.formula-block-wide h3{
+  font-family:'Syne',sans-serif;font-size:13px;font-weight:700;
+  letter-spacing:.04em;color:var(--ink);margin-bottom:1rem
+}
+.formula-block p,.formula-block-wide p{font-size:13px;line-height:1.7;color:#333;margin-bottom:.6rem}
+.formula-note{font-size:12px;color:var(--muted);font-style:italic;line-height:1.6;margin-top:.5rem}
+
+.weight-sources{display:flex;flex-direction:column;gap:0;margin:.8rem 0}
+.ws-row{
+  display:grid;grid-template-columns:1fr 1fr;gap:1rem;
+  font-size:12px;padding:6px 0;border-bottom:1px dotted var(--rule)
+}
+.ws-row:last-child{border-bottom:none}
+.ws-type{font-weight:600;color:var(--ink)}
+.ws-example{color:var(--muted);font-style:italic}
+
+.contrast-table{border:1px solid var(--rule);border-radius:3px;overflow:hidden;margin:.8rem 0;font-size:12px}
+.ct-row{display:grid;grid-template-columns:1fr 1fr;gap:0}
+.ct-row > span{padding:7px 10px;border-bottom:1px solid var(--rule);line-height:1.4}
+.ct-row:last-child > span{border-bottom:none}
+.ct-header{background:var(--ink);color:var(--paper);font-family:'Syne',sans-serif;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+.ct-row:nth-child(even) > span{background:#faf9f5}
+.ct-row > span:first-child{color:#9a2020;border-right:1px solid var(--rule)}
+.ct-row > span:last-child{color:#1a6040}
+.ct-header > span{color:var(--paper) !important}
+
+.example-table{border:1px solid var(--rule);border-radius:3px;overflow:hidden;margin:.8rem 0;font-size:12px}
+.ex-row{display:grid;grid-template-columns:1fr 60px 60px 80px;gap:0;border-bottom:1px solid var(--rule)}
+.ex-row:last-child{border-bottom:none}
+.ex-row > span{padding:7px 10px;line-height:1.3}
+.ex-row > span:not(:first-child){text-align:center;border-left:1px solid var(--rule)}
+.ex-header{background:var(--ink);color:var(--paper);font-family:'Syne',sans-serif;font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase}
+.ex-header > span{color:var(--paper)}
+.ex-present{background:#f4fff8}
+.ex-absent{background:#fff;color:#aaa}
+.ex-total{background:#faf9f5;font-weight:600}
+.ex-yes{color:#1a7040;font-weight:700}
+.ex-no{color:#ccc}
+.ex-result{color:var(--accent2);font-weight:700 !important;font-family:'Syne',sans-serif;font-size:13px}
+
+.property-list{display:flex;flex-direction:column;gap:0}
+.prop-row{padding:8px 0;border-bottom:1px dotted var(--rule);display:grid;grid-template-columns:120px 1fr;gap:.8rem;font-size:12px}
+.prop-row:last-child{border-bottom:none}
+.prop-name{font-weight:700;color:var(--ink);font-family:'Syne',sans-serif;font-size:11px;letter-spacing:.02em;padding-top:1px}
+.prop-def{color:#444;line-height:1.5}
+
+.threshold-vis{margin-top:1rem}
+.tv-bar{display:flex;height:24px;border-radius:3px;overflow:hidden;border:1px solid var(--rule)}
+.tv-zone{display:flex;align-items:center;justify-content:center;font-size:9px;font-family:'Syne',sans-serif;font-weight:700;letter-spacing:.04em}
+.tv-zone span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 4px}
+.tv-off{background:#e8e8e8;color:#aaa}
+.tv-low{background:#fce8e8;color:#9a2020}
+.tv-mid{background:#fdf0dc;color:#8a4500}
+.tv-hi{background:#dff0e8;color:#1a6040}
+.tv-labels{display:flex;font-size:9px;color:var(--muted);margin-top:3px;font-family:'Syne',sans-serif;letter-spacing:.03em}
+.tv-labels > span{text-align:center}
+</style>
+</head>
+<body>
+<nav style="position:sticky;top:0;z-index:100;background:#0f0e0c;border-bottom:1px solid #2a2a28;padding:0 2rem">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&display=swap" rel="stylesheet">
+<div style="max-width:1100px;margin:0 auto;display:flex;align-items:center;height:52px;font-family:'Syne',sans-serif">
+  <a href="index.html" style="font-weight:800;font-size:14px;color:#f8f6f0;letter-spacing:-.01em;margin-right:auto;text-decoration:none;white-space:nowrap">Engine de <span style="color:#c8401a">Inferência</span></a>
+  <div style="display:flex">
+    <a href="index.html" style="font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#888;text-decoration:none;padding:0 1rem;height:52px;display:flex;align-items:center;border-left:1px solid #2a2a28">Início</a>
+    <a href="calculadora.html" style="font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#888;text-decoration:none;padding:0 1rem;height:52px;display:flex;align-items:center;border-left:1px solid #2a2a28">Calculadora</a>
+    <a href="docs.html" style="font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#f8f6f0;text-decoration:none;padding:0 1rem;height:52px;display:flex;align-items:center;border-left:1px solid #2a2a28">Documentação</a>
+  </div>
+</div>
+</nav>
+
+
+<!-- MASTHEAD -->
+<div class="masthead">
+  <div class="masthead-inner">
+    <div class="masthead-title">Engine de Inferência<br><span>Estatística</span><br>Documentação de Referência</div>
+    <div class="masthead-meta">
+      Versão 9 &nbsp;·&nbsp; Julho 2025<br>
+      70 tipos de dado &nbsp;·&nbsp; 14 modelos N1<br>
+      7 modelos N2 &nbsp;·&nbsp; 2 modelos N3<br>
+      Base científica revisada por pares
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+
+<!-- INTRODUÇÃO -->
+<div class="intro">
+  <div class="intro-lead">
+    <p>Este engine recebe tipos de dado disponíveis em um schema e calcula quais inferências estatísticas são viáveis, com cobertura ponderada pelos pesos da literatura científica original. <strong>Não gera confiança inventada</strong> — o percentual exibido é a fração das variáveis do estudo de referência que o usuário possui.</p>
+    <p style="margin-top:1rem">Cada modelo mapeia para um estudo publicado, revisado por pares. Os pesos vêm de coeficientes β (Cox), pontos de score (FINDRISC), importância relativa reportada (RFM) ou GINI incremental (credit scoring). Onde a base científica é fraca ou os dados exigem cuidado ético, isso é declarado explicitamente no caveat de cada modelo.</p>
+  </div>
+  <div class="intro-box">
+    <h3>Arquitetura de níveis</h3>
+    <div class="level-row">
+      <span class="lbadge n1">N1</span>
+      <span class="level-desc">Inferências primárias — calculadas diretamente dos dados brutos. Cada modelo N1 mapeia para um estudo publicado com variáveis e pesos conhecidos.</span>
+    </div>
+    <div class="level-row">
+      <span class="lbadge n2">N2</span>
+      <span class="level-desc">Inferências compostas — combinam dois ou mais modelos N1 já calculados. Requerem cobertura mínima nas inferências de entrada.</span>
+    </div>
+    <div class="level-row">
+      <span class="lbadge n3">N3</span>
+      <span class="level-desc">Meta-inferências — combinam modelos N2. Representam visões integradas e acumulam as incertezas de todos os níveis anteriores.</span>
+    </div>
+  </div>
+</div>
+
+<!-- AVISO ÉTICO -->
+<div class="ethics-box">
+  <h3>Uso responsável e conformidade</h3>
+  <p><strong>Dados de fenotipagem digital</strong> (GPS passivo, HRV via wearable, velocidade de digitação, sono passivo) requerem consentimento informado explícito e base legal sob a LGPD (Lei 13.709/2018), preferencialmente consentimento (Art. 7º, I) ou legítimo interesse documentado com análise de impacto (Art. 7º, IX). O tratamento de dados de saúde se enquadra no Art. 11º da LGPD, que exige requisitos adicionais.</p>
+  <p><strong>Inferências de saúde mental</strong> são triagens populacionais, nunca diagnósticos individuais. A maioria dos estudos de base tem n&lt;100, amostras universitárias e risco de viés de publicação documentado. Resultados não substituem avaliação clínica por profissional habilitado.</p>
+  <p><strong>Inferências de crédito e financeiras</strong> têm regulação específica: Resolução CMN 4.966/2021 (comprometimento de renda), Lei do Cadastro Positivo (Lei 12.414/2011), e Resolução CMN 4.557/2017 (gestão de riscos). O uso em decisões automatizadas pode enquadrar o sistema como sistema de pontuação creditícia (Art. 5º, Lei 12.414/2011).</p>
+</div>
+
+<!-- TOC -->
+<div class="toc">
+  <h3>Navegação rápida</h3>
+  <div class="toc-grid">
+    <a href="#sec-formulacao">§0 Formulação matemática</a>
+    <a href="#sec-dados">§1 Tipos de dado (70)</a>
+    <a href="#sec-n1">§2 Modelos N1 — Primários (14)</a>
+    <a href="#sec-n2">§3 Modelos N2 — Compostos (7)</a>
+    <a href="#sec-n3">§4 Modelos N3 — Meta (2)</a>
+    <a href="#sec-refs">§5 Referências científicas</a>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════════
+     SEÇÃO 0 — FORMULAÇÃO MATEMÁTICA
+═════════════════════════════════════════════════════════════════ -->
+<div class="section" id="sec-formulacao">
+  <div class="section-head">
+    <h2>§0 Formulação matemática</h2>
+    <span class="sh-note">Cobertura ponderada — a inovação central do engine</span>
+  </div>
+
+  <!-- BLOCO PRINCIPAL: A FÓRMULA -->
+  <div class="formula-hero">
+    <div class="formula-label">Cobertura de modelo — N1</div>
+    <div class="formula-display">
+      C<sub>m</sub> = <span class="frac"><span class="frac-num">Σ<sub>i ∈ S</sub> w<sub>i</sub></span><span class="frac-den">Σ<sub>i ∈ V<sub>m</sub></sub> w<sub>i</sub></span></span>
+    </div>
+    <div class="formula-legend">
+      <div class="legend-row"><span class="legend-sym">C<sub>m</sub></span><span class="legend-def">cobertura do modelo <em>m</em>, no intervalo [0, 1]</span></div>
+      <div class="legend-row"><span class="legend-sym">V<sub>m</sub></span><span class="legend-def">conjunto completo de variáveis do modelo <em>m</em> no estudo de referência</span></div>
+      <div class="legend-row"><span class="legend-sym">S</span><span class="legend-def">subconjunto de variáveis de V<sub>m</sub> disponíveis no schema do usuário (S ⊆ V<sub>m</sub>)</span></div>
+      <div class="legend-row"><span class="legend-sym">w<sub>i</sub></span><span class="legend-def">peso da variável <em>i</em>, derivado da literatura original do modelo — não arbitrário</span></div>
+    </div>
+  </div>
+
+  <!-- O QUE SÃO OS PESOS -->
+  <div class="formula-grid">
+    <div class="formula-block">
+      <h3>Origem dos pesos w<sub>i</sub></h3>
+      <p>Os pesos não são atribuídos arbitrariamente. Cada w<sub>i</sub> é derivado de uma das seguintes fontes, dependendo do modelo:</p>
+      <div class="weight-sources">
+        <div class="ws-row">
+          <span class="ws-type">Coeficientes β (Cox)</span>
+          <span class="ws-example">Framingham — w<sub>pressão</sub> = 28%, w<sub>colesterol</sub> = 22%</span>
+        </div>
+        <div class="ws-row">
+          <span class="ws-type">Pontos do score original</span>
+          <span class="ws-example">FINDRISC — hist. glicemia = 5 pts → w = 25%</span>
+        </div>
+        <div class="ws-row">
+          <span class="ws-type">Feature importance (XGBoost/SHAP)</span>
+          <span class="ws-example">RFM — recência = maior variância → w = 38%</span>
+        </div>
+        <div class="ws-row">
+          <span class="ws-type">GINI incremental</span>
+          <span class="ws-example">Credit scoring — score = ΔGINI +0,15 → w = 34%</span>
+        </div>
+        <div class="ws-row">
+          <span class="ws-type">Correlação r com desfecho</span>
+          <span class="ws-example">GPS-depressão — distância: r=−0,25 → w = 25%</span>
+        </div>
+      </div>
+      <p class="formula-note">Os pesos dentro de cada modelo somam 100%. Variáveis do estudo original sem equivalente no schema recebem w<sub>i</sub> = 0 na soma do numerador, mas continuam no denominador — reduzindo a cobertura.</p>
+    </div>
+
+    <div class="formula-block">
+      <h3>Por que cobertura e não confiança?</h3>
+      <p>A diferença é epistemológica, não apenas semântica. Uma <em>confiança</em> implica que o sistema sabe quão correto está. A <em>cobertura</em> afirma apenas o que o sistema sabe: qual fração das evidências necessárias está presente.</p>
+      <div class="contrast-table">
+        <div class="ct-row ct-header">
+          <span>Pseudo-confiança (rejeitada)</span>
+          <span>Cobertura ponderada (adotada)</span>
+        </div>
+        <div class="ct-row">
+          <span>Fórmula arbitrária: base + Σ(gain × matched/total)</span>
+          <span>C<sub>m</sub> = Σw<sub>i∈S</sub> / Σw<sub>i∈Vm</sub></span>
+        </div>
+        <div class="ct-row">
+          <span>Pesos inventados pelo sistema</span>
+          <span>Pesos derivados da literatura publicada</span>
+        </div>
+        <div class="ct-row">
+          <span>Implica precisão do output</span>
+          <span>Declara completude do input</span>
+        </div>
+        <div class="ct-row">
+          <span>Gênero com qualquer dado → 70%</span>
+          <span>Gênero sem sexo declarado → 8% (só nome)</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FÓRMULAS N2 e N3 -->
+  <div class="formula-block formula-block-wide">
+    <h3>Cobertura para inferências compostas — N2 e N3</h3>
+    <p>Modelos compostos não recebem dados brutos diretamente. Eles recebem como entrada as coberturas das inferências N1 (ou N2) que os alimentam, ponderadas pelo peso relativo de cada inferência na composição:</p>
+
+    <div class="formula-display formula-display-sm">
+      C<sub>n2</sub> = <span class="frac"><span class="frac-num">Σ<sub>k ∈ A</sub> φ<sub>k</sub> · C<sub>k</sub></span><span class="frac-den">Σ<sub>k ∈ A</sub> φ<sub>k</sub></span></span>
+    </div>
+
+    <div class="formula-legend" style="margin-top:1rem">
+      <div class="legend-row"><span class="legend-sym">C<sub>n2</sub></span><span class="legend-def">cobertura da inferência composta</span></div>
+      <div class="legend-row"><span class="legend-sym">A</span><span class="legend-def">subconjunto de inferências N1 necessárias que estão ativas (cobertura > 0)</span></div>
+      <div class="legend-row"><span class="legend-sym">φ<sub>k</sub></span><span class="legend-def">peso da inferência N1 de id <em>k</em> na composição do modelo N2 — derivado da literatura do modelo composto</span></div>
+      <div class="legend-row"><span class="legend-sym">C<sub>k</sub></span><span class="legend-def">cobertura calculada da inferência N1 de id <em>k</em>, conforme a fórmula acima</span></div>
+    </div>
+
+    <p class="formula-note" style="margin-top:1rem">O denominador usa apenas as inferências em A (ativas), não o conjunto completo de entradas possíveis do modelo. Isso evita penalizar artificialmente modelos N2 quando algumas de suas entradas N1 sequer são relevantes para o schema disponível. N3 aplica a mesma fórmula substituindo C<sub>k</sub> por coberturas de modelos N2.</p>
+  </div>
+
+  <!-- EXEMPLO NUMÉRICO -->
+  <div class="formula-block formula-block-wide">
+    <h3>Exemplo numérico — Risco cardiovascular (Framingham)</h3>
+    <p>Dado um schema com: <strong>Pressão arterial</strong>, <strong>Tabagismo</strong> e <strong>Diabetes</strong>. Ausentes: Colesterol, Idade, Anti-hipertensivo.</p>
+
+    <div class="example-table">
+      <div class="ex-row ex-header">
+        <span>Variável</span><span>w<sub>i</sub></span><span>Presente?</span><span>Contribuição</span>
+      </div>
+      <div class="ex-row ex-present">
+        <span>Pressão arterial sistólica</span><span>28%</span><span class="ex-yes">✓</span><span>28</span>
+      </div>
+      <div class="ex-row ex-absent">
+        <span>Colesterol total + HDL</span><span>22%</span><span class="ex-no">—</span><span>0</span>
+      </div>
+      <div class="ex-row ex-present">
+        <span>Tabagismo</span><span>14%</span><span class="ex-yes">✓</span><span>14</span>
+      </div>
+      <div class="ex-row ex-present">
+        <span>Diabetes</span><span>14%</span><span class="ex-yes">✓</span><span>14</span>
+      </div>
+      <div class="ex-row ex-absent">
+        <span>Idade</span><span>14%</span><span class="ex-no">—</span><span>0</span>
+      </div>
+      <div class="ex-row ex-absent">
+        <span>Anti-hipertensivo</span><span>8%</span><span class="ex-no">—</span><span>0</span>
+      </div>
+      <div class="ex-row ex-total">
+        <span><strong>Total</strong></span><span>100%</span><span>3 de 6</span>
+        <span class="ex-result">C<sub>m</sub> = 56/100 = <strong>56%</strong></span>
+      </div>
+    </div>
+
+    <p class="formula-note" style="margin-top:1rem">Interpretação correta: <em>"O usuário possui 56% do peso das evidências que o estudo Framingham (2008) considera relevantes para calcular o risco cardiovascular."</em> Não: <em>"O sistema tem 56% de confiança de que o risco está correto."</em> As duas afirmações têm implicações radicalmente diferentes para uso responsável.</p>
+  </div>
+
+  <!-- PROPRIEDADES FORMAIS -->
+  <div class="formula-grid">
+    <div class="formula-block">
+      <h3>Propriedades formais</h3>
+      <div class="property-list">
+        <div class="prop-row">
+          <span class="prop-name">Completude</span>
+          <span class="prop-def">Se S = V<sub>m</sub>, então C<sub>m</sub> = 1. Com todos os dados do estudo original, cobertura é máxima.</span>
+        </div>
+        <div class="prop-row">
+          <span class="prop-name">Monotonicidade</span>
+          <span class="prop-def">Adicionar qualquer variável de V<sub>m</sub> ao schema nunca reduz C<sub>m</sub>. A cobertura é não-decrescente com dados.</span>
+        </div>
+        <div class="prop-row">
+          <span class="prop-name">Ponderação</span>
+          <span class="prop-def">Adicionar uma variável de alto peso (ex.: pressão no Framingham, w=28%) aumenta mais C<sub>m</sub> que uma de baixo peso (ex.: anti-hipertensivo, w=8%).</span>
+        </div>
+        <div class="prop-row">
+          <span class="prop-name">Limitação</span>
+          <span class="prop-def">C<sub>m</sub> não é uma probabilidade. Não estima a chance de o output estar correto — apenas a fração do input do modelo original que está disponível.</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="formula-block">
+      <h3>Limiar de ativação</h3>
+      <p>Um modelo só é exibido se C<sub>m</sub> ≥ 0,05 (5%). Abaixo disso, a cobertura é considerada insuficiente para qualquer inferência útil — mesmo que tecnicamente calculável.</p>
+      <p style="margin-top:.8rem">Para modelos N2 e N3, é exigida adicionalmente a presença de pelo menos <em>min</em> inferências N1 ativas (definido por modelo, tipicamente 2). Isso evita que um modelo composto apareça com base em uma única inferência de entrada.</p>
+      <div class="threshold-vis">
+        <div class="tv-bar">
+          <div class="tv-zone tv-off" style="width:5%"><span>0–5%</span></div>
+          <div class="tv-zone tv-low" style="width:45%"><span>5–50% baixa</span></div>
+          <div class="tv-zone tv-mid" style="width:30%"><span>50–80% parcial</span></div>
+          <div class="tv-zone tv-hi"  style="width:20%"><span>80–100% alta</span></div>
+        </div>
+        <div class="tv-labels">
+          <span style="width:5%">inativo</span>
+          <span style="width:45%">exibido com aviso</span>
+          <span style="width:30%">exibido</span>
+          <span style="width:20%">exibido</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ════════════════════════════════════════════════════════════════
+     SEÇÃO 1 — TIPOS DE DADO
+═════════════════════════════════════════════════════════════════ -->
+<div class="section" id="sec-dados">
+  <div class="section-head">
+    <h2>§1 Tipos de dado</h2>
+    <span class="sh-note">70 variáveis em 9 categorias</span>
+  </div>
+
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th style="width:18%">Dado</th>
+        <th style="width:24%">Descrição</th>
+        <th style="width:22%">Modelos que usa</th>
+        <th style="width:36%">Nota científica relevante</th>
+      </tr>
+    </thead>
+    <tbody>
+
+    <!-- GEOGRÁFICO -->
+    <tr><td colspan="4" class="cat-group-label">Geográfico</td></tr>
+    <tr>
+      <td class="name">CEP<br><span class="cat-tag cat-geo">Geo</span></td>
+      <td class="desc">Código Postal — proxy geoeconômico do endereço</td>
+      <td class="note">NSE geográfico, Classe social, Vulnerabilidade</td>
+      <td class="ref">Correlação r=0,87 com renda por setor censitário. Soares et al. (UNICAMP/SciELO 2005). CEP menos homogêneo que setor — perda tolerável de precisão.</td>
+    </tr>
+    <tr>
+      <td class="name">Cidade<br><span class="cat-tag cat-geo">Geo</span></td>
+      <td class="desc">Município de residência</td>
+      <td class="note">NSE geográfico, Vulnerabilidade</td>
+      <td class="ref">Unidade base do IDH-M e IVS-IPEA. Diferenças entre municípios explicam ~22% da variância de renda no Brasil (IBGE/PNAD 2022).</td>
+    </tr>
+    <tr>
+      <td class="name">Estado / UF<br><span class="cat-tag cat-geo">Geo</span></td>
+      <td class="desc">Unidade federativa</td>
+      <td class="note">NSE geográfico</td>
+      <td class="ref">PIB per capita varia de R$13mil (MA) a R$55mil (DF). Contexto macroeconômico e cultural sistematicamente diferente entre UFs (IBGE 2022).</td>
+    </tr>
+    <tr>
+      <td class="name">Região do Brasil<br><span class="cat-tag cat-geo">Geo</span></td>
+      <td class="desc">Norte / NE / Sul / SE / CO</td>
+      <td class="note">NSE geográfico</td>
+      <td class="ref">Norte e Nordeste: IDH médio 15–20% inferior a Sul/Sudeste. Maior componente da desigualdade interestadual de renda (PNUD Brasil 2022).</td>
+    </tr>
+    <tr>
+      <td class="name">Bairro<br><span class="cat-tag cat-geo">Geo</span></td>
+      <td class="desc">Subdivisão urbana do endereço</td>
+      <td class="note">NSE geográfico</td>
+      <td class="ref">GeoSES-IM (intra-municipal): melhor ajuste para mortalidade por doenças circulatórias que modelos de município. Gini de renda entre bairros de SP ≈ 0,55 (Barrozo 2020).</td>
+    </tr>
+    <tr>
+      <td class="name">Zona urbana/rural<br><span class="cat-tag cat-geo">Geo</span></td>
+      <td class="desc">Urbano vs. rural</td>
+      <td class="note">NSE geográfico</td>
+      <td class="ref">Municípios rurais: IVS médio 40% maior que urbanos. Acesso a saúde, educação e renda sistematicamente inferior (IPEA/IVS 2022).</td>
+    </tr>
+    <tr>
+      <td class="name">IDH do município<br><span class="cat-tag cat-geo">Geo</span></td>
+      <td class="desc">Índice de Desenvolvimento Humano local (PNUD)</td>
+      <td class="note">NSE geográfico, Vulnerabilidade</td>
+      <td class="ref">GeoSES-BR: correlação >0,85 com IDH-M. IDH é limitado para saúde (redundância na dimensão longevidade); GeoSES o supera em poder explicativo (AIC −4.583 vs −524, Barrozo 2020).</td>
+    </tr>
+    <tr>
+      <td class="name">IVS da área<br><span class="cat-tag cat-geo">Geo</span></td>
+      <td class="desc">Índice de Vulnerabilidade Social — IPEA</td>
+      <td class="note">Vulnerabilidade social, NSE geográfico</td>
+      <td class="ref">r=0,82 com mortalidade infantil; r=0,78 com analfabetismo (IPEA 2022). Composto por 3 dimensões: infraestrutura urbana, capital humano, renda e trabalho.</td>
+    </tr>
+
+    <!-- DEMOGRÁFICO -->
+    <tr><td colspan="4" class="cat-group-label">Demográfico</td></tr>
+    <tr>
+      <td class="name">Idade<br><span class="cat-tag cat-demo">Demo</span></td>
+      <td class="desc">Idade exata em anos</td>
+      <td class="note">Risco CV, Risco DM2, Geração</td>
+      <td class="ref">Framingham: β=0,72 (H) / 0,69 (M) no Cox — dominante em >55 anos. FINDRISC: 0–4 pts por faixa. D'Agostino et al. 2008 (Circulation 118:24).</td>
+    </tr>
+    <tr>
+      <td class="name">Sexo declarado<br><span class="cat-tag cat-demo">Demo</span></td>
+      <td class="desc">Sexo biológico ou gênero autodeclarado</td>
+      <td class="note">Gênero inferido</td>
+      <td class="ref">Framingham usa coeficientes Cox distintos por sexo. Bacen (EE80/2020): mulheres têm ~30% mais endividamento de risco que homens, apesar de menor inadimplência.</td>
+    </tr>
+    <tr>
+      <td class="name">Escolaridade<br><span class="cat-tag cat-demo">Demo</span></td>
+      <td class="desc">Nível educacional completo</td>
+      <td class="note">Classe social, Vulnerabilidade</td>
+      <td class="ref">Um dos dois eixos clássicos de NSE. Correlação com renda formal r≈0,60 (PNAD-C 2022). Até 8 pts de diferença no Critério Brasil entre analfabeto e pós-graduado.</td>
+    </tr>
+    <tr>
+      <td class="name">Estado civil<br><span class="cat-tag cat-demo">Demo</span></td>
+      <td class="desc">Solteiro, casado, divorciado, viúvo</td>
+      <td class="note">Perfil de crédito (auxiliar)</td>
+      <td class="ref">Variável estatisticamente significante em credit scoring no Brasil. Casados: OR≈0,75 para inadimplência vs. solteiros em crédito pessoal (Lima 2014; Thomas et al. 2002).</td>
+    </tr>
+    <tr>
+      <td class="name">Nº de filhos<br><span class="cat-tag cat-demo">Demo</span></td>
+      <td class="desc">Quantidade de filhos — proxy de comprometimento de renda</td>
+      <td class="note">Vulnerabilidade (auxiliar)</td>
+      <td class="ref">Domicílios com 3+ filhos têm renda per capita ~45% menor que sem filhos (IBGE/PNS 2019).</td>
+    </tr>
+    <tr>
+      <td class="name">Raça / Cor<br><span class="cat-tag cat-demo">Demo</span></td>
+      <td class="desc">Autodeclaração IBGE — proxy de determinantes sociais de saúde</td>
+      <td class="note">Vulnerabilidade (auxiliar)</td>
+      <td class="ref">Pessoas negras: renda média 45% menor que brancas; 67,1% das mortes maternas em 2022 (MS/SIM). IBGE: Desigualdades por Cor ou Raça 2ª ed., 2022.</td>
+    </tr>
+    <tr>
+      <td class="name">Primeiro nome<br><span class="cat-tag cat-demo">Demo</span></td>
+      <td class="desc">Indicativo de gênero e origem étnica</td>
+      <td class="note">Gênero inferido</td>
+      <td class="ref">Análise onomástica PT-BR: 87–91% precisão para gênero (Carvalho et al. SBC 2020). Falha em nomes neutros/modernos e origens indígena/africana.</td>
+    </tr>
+    <tr>
+      <td class="name">Ano de nascimento<br><span class="cat-tag cat-demo">Demo</span></td>
+      <td class="desc">Determina geração com exatidão</td>
+      <td class="note">Geração demográfica</td>
+      <td class="ref">Pew Research 2019: Alpha &lt;2013, Z 1997–2012, Millennial 1981–1996, X 1965–1980, Boomer 1946–1964. Com ano exato: precisão 100%.</td>
+    </tr>
+
+    <!-- ECONÔMICO -->
+    <tr><td colspan="4" class="cat-group-label">Econômico</td></tr>
+    <tr>
+      <td class="name">Renda declarada<br><span class="cat-tag cat-econ">Econ</span></td>
+      <td class="desc">Rendimento mensal em R$</td>
+      <td class="note">Classe social, Risco de crédito, Inadimplência, Vulnerabilidade, Propensão premium</td>
+      <td class="ref">r=0,74 com classe ABEP (PNAD 2022). Variável regulatória obrigatória em crédito (Res. CMN 4.966/2021). Dimensão "renda e trabalho" do IVS-IPEA.</td>
+    </tr>
+    <tr>
+      <td class="name">Renda familiar<br><span class="cat-tag cat-econ">Econ</span></td>
+      <td class="desc">Renda total do domicílio</td>
+      <td class="note">Classe social, Vulnerabilidade</td>
+      <td class="ref">Base do Cadastro Único (CadÚnico/MDS). Melhor preditor de NSE domiciliar que renda individual quando há múltiplos provedores.</td>
+    </tr>
+    <tr>
+      <td class="name">Patrimônio<br><span class="cat-tag cat-econ">Econ</span></td>
+      <td class="desc">Bens e ativos declarados</td>
+      <td class="note">Propensão premium</td>
+      <td class="ref">OR=3,8 para investimento em renda variável (ANBIMA 2023). "Capital" nos 5 Cs do crédito (Thomas et al. 2002).</td>
+    </tr>
+    <tr>
+      <td class="name">Ocupação / Cargo<br><span class="cat-tag cat-econ">Econ</span></td>
+      <td class="desc">Função profissional exercida</td>
+      <td class="note">Classe social (auxiliar)</td>
+      <td class="ref">Segundo eixo clássico de NSE junto com escolaridade. Renda média varia 8× entre cargos de base e direção (IBGE/PNAD-C 2022, CBO).</td>
+    </tr>
+    <tr>
+      <td class="name">Vínculo empregatício<br><span class="cat-tag cat-econ">Econ</span></td>
+      <td class="desc">CLT, PJ, autônomo, servidor</td>
+      <td class="note">Risco de crédito (auxiliar)</td>
+      <td class="ref">Vínculo formal reduz PD em ~15–20% em scorecards (Bacen NT40/2022). CLT garante FGTS; autônomos têm renda mais volátil.</td>
+    </tr>
+    <tr>
+      <td class="name">Tipo de imóvel<br><span class="cat-tag cat-econ">Econ</span></td>
+      <td class="desc">Próprio, alugado, financiado</td>
+      <td class="note">Classe social</td>
+      <td class="ref">Componente direto do Critério Brasil ABEP 2022. Diferenciador forte entre classes A/B e C/D/E. GeoSES: dimensão "wealth".</td>
+    </tr>
+    <tr>
+      <td class="name">Possui veículo<br><span class="cat-tag cat-econ">Econ</span></td>
+      <td class="desc">Carro, moto ou nenhum</td>
+      <td class="note">Classe social</td>
+      <td class="ref">Peso 4 no Critério ABEP 2022. 54% dos domicílios brasileiros tinham automóvel em 2022 (IBGE/PNAD-C 2022).</td>
+    </tr>
+    <tr>
+      <td class="name">Eletrodomésticos<br><span class="cat-tag cat-econ">Econ</span></td>
+      <td class="desc">Quantidade e tipo de bens duráveis</td>
+      <td class="note">Classe social</td>
+      <td class="ref">Base original do Critério Brasil. PCA com ativos explica 12–27% da variância total de NSE (Houweling et al. Health Policy Planning 2006).</td>
+    </tr>
+    <tr>
+      <td class="name">Possui computador<br><span class="cat-tag cat-econ">Econ</span></td>
+      <td class="desc">Desktop, notebook ou tablet próprio</td>
+      <td class="note">Classe social</td>
+      <td class="ref">Peso 3 no Critério ABEP 2022. Presente em 94% dos domicílios A/B vs. 28% D/E (CGI.br TIC Domicílios 2023).</td>
+    </tr>
+
+    <!-- COMPORTAMENTAL -->
+    <tr><td colspan="4" class="cat-group-label">Comportamental</td></tr>
+    <tr>
+      <td class="name">Frequência de compras<br><span class="cat-tag cat-beh">Comp</span></td>
+      <td class="desc">Número de transações por mês</td>
+      <td class="note">Propensão a churn, LTV</td>
+      <td class="ref">"Most important input for CLV estimation" — Fader & Hardie 2005 (Marketing Science). Segundo preditor de churn depois de recência.</td>
+    </tr>
+    <tr>
+      <td class="name">Ticket médio<br><span class="cat-tag cat-beh">Comp</span></td>
+      <td class="desc">Valor médio por compra em R$</td>
+      <td class="note">LTV, Propensão premium</td>
+      <td class="ref">Componente Monetary do RFM. Gamma-Gamma submodel: spend por transação é independente de R/F no BG/NBD (Fader & Hardie 2005).</td>
+    </tr>
+    <tr>
+      <td class="name">Recência de uso<br><span class="cat-tag cat-beh">Comp</span></td>
+      <td class="desc">Dias desde o último acesso ou compra</td>
+      <td class="note">Propensão a churn, LTV</td>
+      <td class="ref">"Greatest variability in CLV on recency dimension" — Fader & Hardie 2005. Maior feature importance para churn em XGBoost (Mena et al. Annals OR 2024).</td>
+    </tr>
+    <tr>
+      <td class="name">Data última compra<br><span class="cat-tag cat-beh">Comp</span></td>
+      <td class="desc">Dias desde a última transação</td>
+      <td class="note">Propensão a churn</td>
+      <td class="ref">Complementar à recência. Clientes sem compra há 90+ dias: 3× mais risco de churn (Mena et al. 2024).</td>
+    </tr>
+    <tr>
+      <td class="name">NPS / Satisfação<br><span class="cat-tag cat-beh">Comp</span></td>
+      <td class="desc">Net Promoter Score 0–10</td>
+      <td class="note">Propensão a churn</td>
+      <td class="ref">ΔAUC +0,07 ao adicionar ao RFM puro (Mena 2024). Detratores (NPS&lt;6): ~5× mais cancelamentos que promotores (Reichheld, HBR 2003).</td>
+    </tr>
+    <tr>
+      <td class="name">Contatos de suporte<br><span class="cat-tag cat-beh">Comp</span></td>
+      <td class="desc">Chamados abertos nos últimos 90 dias</td>
+      <td class="note">Propensão a churn</td>
+      <td class="ref">Maior SHAP value para churn de curto prazo em e-commerce (Zaghloul et al. arXiv 2510.11604, 2025).</td>
+    </tr>
+    <tr>
+      <td class="name">Uso do app<br><span class="cat-tag cat-beh">Comp</span></td>
+      <td class="desc">Sessões por semana no aplicativo</td>
+      <td class="note">Propensão a churn (auxiliar)</td>
+      <td class="ref">&lt;1 sessão/semana: 4× mais risco de desinstalar em 30 dias vs. 5+ sessões/semana (AppsFlyer State of App Marketing 2023).</td>
+    </tr>
+    <tr>
+      <td class="name">Tipo de plano<br><span class="cat-tag cat-beh">Comp</span></td>
+      <td class="desc">Básico, premium ou enterprise</td>
+      <td class="note">Propensão a churn, LTV, Propensão premium</td>
+      <td class="ref">Plano premium: ΔLTV 3–5× e taxa de churn −40–60% vs. básico com perfil RFM similar (Zuora SEI 2023).</td>
+    </tr>
+    <tr>
+      <td class="name">Abandono de carrinho<br><span class="cat-tag cat-beh">Comp</span></td>
+      <td class="desc">Carrinhos iniciados sem finalizar</td>
+      <td class="note">Propensão de compra imediata</td>
+      <td class="ref">Taxa média de abandono: 69,99% (Baymard 2024). Combinado com CTR de recuperação: conversão de ~2% → ~14%.</td>
+    </tr>
+    <tr>
+      <td class="name">CTR / Cliques<br><span class="cat-tag cat-beh">Comp</span></td>
+      <td class="desc">Taxa de clique em comunicações enviadas</td>
+      <td class="note">Engajamento, intenção de compra</td>
+      <td class="ref">CTR >5% indica alta intenção de compra em 24h (Mailchimp Benchmarks 2023). Amplifica conversão em campanhas de recuperação de carrinho.</td>
+    </tr>
+    <tr>
+      <td class="name">Abertura de e-mails<br><span class="cat-tag cat-beh">Comp</span></td>
+      <td class="desc">Taxa de abertura de e-mails enviados</td>
+      <td class="note">Engajamento (auxiliar)</td>
+      <td class="ref">Open rate &lt;10% nos últimos 30 dias = sinal de "silent churner" — cliente que para de interagir antes de cancelar (Mailchimp 2023 + Mena 2024).</td>
+    </tr>
+    <tr>
+      <td class="name">Horário de acesso<br><span class="cat-tag cat-beh">Comp</span></td>
+      <td class="desc">Horas de pico de atividade digital</td>
+      <td class="note">Perfil geracional (auxiliar)</td>
+      <td class="ref">Acesso noturno (22h–2h): indicativo de geração Z/Alpha. Horário comercial: uso profissional (Pew Research Teens & Tech 2023).</td>
+    </tr>
+    <tr>
+      <td class="name">Categorias de compra<br><span class="cat-tag cat-beh">Comp</span></td>
+      <td class="desc">Segmentos de produtos adquiridos</td>
+      <td class="note">Gênero inferido (auxiliar fraco)</td>
+      <td class="ref">r=0,44 com gênero — sinal fraco. Usado apenas como variável auxiliar quando sexo declarado é indisponível (Kotler & Keller 2022).</td>
+    </tr>
+
+    <!-- SAÚDE -->
+    <tr><td colspan="4" class="cat-group-label">Saúde</td></tr>
+    <tr>
+      <td class="name">IMC<br><span class="cat-tag cat-sau">Saúde</span></td>
+      <td class="desc">Índice de Massa Corporal</td>
+      <td class="note">Risco DM2</td>
+      <td class="ref">FINDRISC: 0–3 pts conforme faixa. Obesidade (IMC>30): OR=4,0 para DM2 vs. normopeso (ARIC study). Proxy imperfeito para circunferência abdominal.</td>
+    </tr>
+    <tr>
+      <td class="name">Pressão arterial<br><span class="cat-tag cat-sau">Saúde</span></td>
+      <td class="desc">Sistólica e diastólica em mmHg</td>
+      <td class="note">Risco cardiovascular</td>
+      <td class="ref">Maior coeficiente do Framingham: β=1,65 (H) / 2,19 (M). HAS leve em fumante de 45 anos: risco CV 20% em 10 anos (D'Agostino et al. 2008).</td>
+    </tr>
+    <tr>
+      <td class="name">Glicemia em jejum<br><span class="cat-tag cat-sau">Saúde</span></td>
+      <td class="desc">Nível de glicose — triagem de pré-diabetes</td>
+      <td class="note">Risco CV (auxiliar)</td>
+      <td class="ref">Pré-diabetes (100–125 mg/dL): RR=3–10× para DM2 (ADA Standards 2024). No Framingham: β=0,87 (H) / 1,13 (M) para diabetes declarado.</td>
+    </tr>
+    <tr>
+      <td class="name">Colesterol (HDL/LDL)<br><span class="cat-tag cat-sau">Saúde</span></td>
+      <td class="desc">Colesterol total e frações</td>
+      <td class="note">Risco cardiovascular</td>
+      <td class="ref">Framingham: β_TC=0,94; β_HDL=−0,88. HDL protetor: cada 10 mg/dL de aumento reduz risco ~3% (Wilson et al. Circulation 1998).</td>
+    </tr>
+    <tr>
+      <td class="name">Tabagismo<br><span class="cat-tag cat-sau">Saúde</span></td>
+      <td class="desc">Fumante, ex-fumante, nunca fumou</td>
+      <td class="note">Risco cardiovascular</td>
+      <td class="ref">Framingham: β=0,82 (H) / 0,88 (M). Efeito sinérgico com HAS — antecipa evento CV em 5–10 anos. Pencina et al. Circulation 2009.</td>
+    </tr>
+    <tr>
+      <td class="name">Diabetes diagnosticado<br><span class="cat-tag cat-sau">Saúde</span></td>
+      <td class="desc">Diagnóstico clínico de diabetes</td>
+      <td class="note">Risco cardiovascular</td>
+      <td class="ref">β=0,87 (H) / 1,13 (M) no Framingham. DM2 equivale a doença coronária prévia em termos de risco CV (AHA/ACC Prevention Guidelines 2019).</td>
+    </tr>
+    <tr>
+      <td class="name">Atividade física<br><span class="cat-tag cat-sau">Saúde</span></td>
+      <td class="desc">≥30 min/dia de exercício regular</td>
+      <td class="note">Risco DM2</td>
+      <td class="ref">FINDRISC: 2 pts se sedentário. OR=6× para DM em LATAM com atividade insuficiente (Aschner et al. Frontiers Endocrinology 2023, n=47.267).</td>
+    </tr>
+    <tr>
+      <td class="name">Histórico glicemia alta<br><span class="cat-tag cat-sau">Saúde</span></td>
+      <td class="desc">Exame prévio com glicemia elevada</td>
+      <td class="note">Risco DM2</td>
+      <td class="ref">5 pts no FINDRISC — maior preditor. OR=63× para risco muito alto de DM em LATAM (Aschner 2023). OR=3,23 para DM não diagnosticado no Peru (PMC6249987).</td>
+    </tr>
+    <tr>
+      <td class="name">Histórico de doenças<br><span class="cat-tag cat-sau">Saúde</span></td>
+      <td class="desc">Comorbidades diagnosticadas</td>
+      <td class="note">Saúde integrada (auxiliar)</td>
+      <td class="ref">Síndrome metabólica (≥3 critérios): RR=2–3× para eventos CV vs. condição isolada. Os efeitos são multiplicativos, não aditivos (Alberti et al. Circulation 2009).</td>
+    </tr>
+    <tr>
+      <td class="name">Anti-hipertensivo<br><span class="cat-tag cat-sau">Saúde</span></td>
+      <td class="desc">Uso atual de medicamento para pressão</td>
+      <td class="note">Risco CV, Risco DM2</td>
+      <td class="ref">Framingham: ajusta score PA (+1 a +2 pts quando tratada). FINDRISC: 2 pts — OR=13× para risco DM muito alto em LATAM (Aschner 2023).</td>
+    </tr>
+    <tr>
+      <td class="name">Histórico familiar DM<br><span class="cat-tag cat-sau">Saúde</span></td>
+      <td class="desc">Familiar de 1º grau com diabetes</td>
+      <td class="note">Risco DM2</td>
+      <td class="ref">5 pts no FINDRISC. OR=38× para risco muito alto de DM em LATAM (Aschner 2023). Segundo maior preditor do score após histórico de glicemia alta.</td>
+    </tr>
+    <tr>
+      <td class="name">Qualidade do sono<br><span class="cat-tag cat-sau">Saúde</span></td>
+      <td class="desc">Horas/noite e qualidade percebida (auto-relato)</td>
+      <td class="note">Saúde mental (auxiliar)</td>
+      <td class="ref">Sono &lt;6h/noite: OR=1,89 para obesidade, OR=1,55 para DM2, OR=1,48 para HAS (Cappuccio et al. Sleep 2010). Burnout: AUC=0,70 com sono + atividade física.</td>
+    </tr>
+    <tr>
+      <td class="name">Consumo de álcool<br><span class="cat-tag cat-sau">Saúde</span></td>
+      <td class="desc">Frequência e quantidade semanal — fator de risco CV</td>
+      <td class="note">Risco CV (auxiliar)</td>
+      <td class="ref">Consumo de risco (&gt;14 doses/semana H; &gt;7 M): OR=1,47 para HAS, OR=2,24 para arritmia (Ronksley et al. BMJ 2011). 17,4% dos adultos brasileiros têm consumo de risco (VIGITEL 2022).</td>
+    </tr>
+
+    <!-- FINANCEIRO -->
+    <tr><td colspan="4" class="cat-group-label">Financeiro</td></tr>
+    <tr>
+      <td class="name">Score de crédito<br><span class="cat-tag cat-fin">Fin</span></td>
+      <td class="desc">Pontuação Serasa / SPC / Boa Vista</td>
+      <td class="note">Risco de crédito, Inadimplência</td>
+      <td class="ref">ΔGINI≈+0,15 vs. variáveis cadastrais puras — concentra histórico comportamental. Bacen NT 40/2022.</td>
+    </tr>
+    <tr>
+      <td class="name">% uso do limite<br><span class="cat-tag cat-fin">Fin</span></td>
+      <td class="desc">Percentual do limite de crédito usado</td>
+      <td class="note">Risco de crédito, Inadimplência</td>
+      <td class="ref">r=0,58 com default em 6 meses — maior preditor comportamental quando score indisponível. Uso >70%: sinal de stress financeiro (Bacen NT40/2022).</td>
+    </tr>
+    <tr>
+      <td class="name">Histórico inadimplência<br><span class="cat-tag cat-fin">Fin</span></td>
+      <td class="desc">Registros de atraso em pagamentos</td>
+      <td class="note">Risco de crédito, Inadimplência</td>
+      <td class="ref">Acurácia de 89,79% em modelo logístico de banco português (Duarte et al. J. Risk Fin. Mgmt 2022, PMC9041570). "Caráter" nos 5 Cs do crédito.</td>
+    </tr>
+    <tr>
+      <td class="name">Dívidas ativas<br><span class="cat-tag cat-fin">Fin</span></td>
+      <td class="desc">Débitos em aberto no CPF</td>
+      <td class="note">Risco de crédito, Inadimplência</td>
+      <td class="ref">Critério de inadimplência mais efetivo para classificar superendividamento que critérios de renda (Bacen EE80/2020).</td>
+    </tr>
+    <tr>
+      <td class="name">Parcelas ativas<br><span class="cat-tag cat-fin">Fin</span></td>
+      <td class="desc">Contratos parcelados em aberto</td>
+      <td class="note">Inadimplência</td>
+      <td class="ref">Multimodalidades de crédito: ΔPD=+8–12% por produto adicional. Critério mais efetivo que comprometimento de renda isolado (Bacen EE80/2020).</td>
+    </tr>
+    <tr>
+      <td class="name">Possui investimentos<br><span class="cat-tag cat-fin">Fin</span></td>
+      <td class="desc">Aplicações financeiras ativas</td>
+      <td class="note">Propensão premium</td>
+      <td class="ref">OR=4,2 para nova aquisição de produto financeiro — maior preditor isolado de propensão a investir (ANBIMA Raio X do Investidor 2023).</td>
+    </tr>
+    <tr>
+      <td class="name">Histórico de crédito<br><span class="cat-tag cat-fin">Fin</span></td>
+      <td class="desc">Registro histórico de pagamentos</td>
+      <td class="note">Risco de crédito</td>
+      <td class="ref">"Caráter" nos 5 Cs do crédito — tempo de relacionamento financeiro. Quanto mais longo, mais preciso o score (Thomas et al. 2002).</td>
+    </tr>
+    <tr>
+      <td class="name">Limite de cartão<br><span class="cat-tag cat-fin">Fin</span></td>
+      <td class="desc">Limite total de crédito disponível</td>
+      <td class="note">NSE financeiro (auxiliar)</td>
+      <td class="ref">Proxy da avaliação prévia de risco da instituição. Classes D/E têm limite médio 8× menor que classe A (Bacen REF 2022).</td>
+    </tr>
+
+    <!-- EDUCAÇÃO -->
+    <tr><td colspan="4" class="cat-group-label">Educação</td></tr>
+    <tr>
+      <td class="name">Área de formação<br><span class="cat-tag cat-edu">Edu</span></td>
+      <td class="desc">Área do curso de graduação</td>
+      <td class="note">Classe social (auxiliar)</td>
+      <td class="ref">Renda média varia 3,5× entre áreas: Medicina/Direito/Engenharia vs. Pedagogia/Serviço Social (IBGE/PNAD-C + MEC/INEP Censo 2022).</td>
+    </tr>
+    <tr>
+      <td class="name">Tipo de instituição<br><span class="cat-tag cat-edu">Edu</span></td>
+      <td class="desc">Pública ou privada, conceito MEC</td>
+      <td class="note">Classe social (auxiliar)</td>
+      <td class="ref">Proxy de capital social e redes profissionais. Alunos de IES premium têm diferencial de renda +15% (MEC/IGC 2022).</td>
+    </tr>
+    <tr>
+      <td class="name">Pós-graduação<br><span class="cat-tag cat-edu">Edu</span></td>
+      <td class="desc">MBA, mestrado, doutorado</td>
+      <td class="note">Propensão premium</td>
+      <td class="ref">Mestres/doutores: renda 3,5× maior que graduados (IBGE/PNAD-C 2022). 2,1× mais propensão a investir em renda variável (ANBIMA 2023).</td>
+    </tr>
+
+    <!-- DIGITAL -->
+    <tr><td colspan="4" class="cat-group-label">Digital</td></tr>
+    <tr>
+      <td class="name">Velocidade de internet<br><span class="cat-tag cat-dig">Digital</span></td>
+      <td class="desc">Mbps de conexão domiciliar</td>
+      <td class="note">Classe social (auxiliar)</td>
+      <td class="ref">Fibra óptica: 4,3× mais uso de serviços digitais que 4G/3G. r≈0,55 com NSE domiciliar (CGI.br TIC Domicílios 2023).</td>
+    </tr>
+    <tr>
+      <td class="name">Tipo de internet<br><span class="cat-tag cat-dig">Digital</span></td>
+      <td class="desc">Fibra, cabo, 4G, 5G</td>
+      <td class="note">Classe social (auxiliar)</td>
+      <td class="ref">Fibra óptica em 54% dos domicílios; 4G como único acesso em ~32%, concentrado em C/D/E (CGI.br 2023 + ANATEL 2023).</td>
+    </tr>
+    <tr>
+      <td class="name">Plataformas usadas<br><span class="cat-tag cat-dig">Digital</span></td>
+      <td class="desc">Instagram, TikTok, LinkedIn, etc.</td>
+      <td class="note">Geração demográfica (proxy fraco)</td>
+      <td class="ref">~61% precisão para inferência de geração (MIT Media Lab 2021). Sinal fraco isolado. TikTok/Roblox→Z/Alpha; LinkedIn/Facebook→X/Millennial.</td>
+    </tr>
+    <tr>
+      <td class="name">Streaming<br><span class="cat-tag cat-dig">Digital</span></td>
+      <td class="desc">Netflix, Spotify, Disney+ e similares</td>
+      <td class="note">Geração demográfica (proxy muito fraco)</td>
+      <td class="ref">Proxy de maturidade digital e NSE. Netflix em 31% dos domicílios — concentrado em A/B/C (CGI.br 2023 + Kantar Ibope Media 2023).</td>
+    </tr>
+    <tr>
+      <td class="name">Tempo de tela diário<br><span class="cat-tag cat-dig">Digital</span></td>
+      <td class="desc">Horas/dia (auto-relato)</td>
+      <td class="note">Saúde mental (auxiliar)</td>
+      <td class="ref">&gt;4h/dia: r=−0,32 com bem-estar em adolescentes (Twenge et al. Emotion 2018). Em adultos: proxy de engajamento digital e trabalho remoto.</td>
+    </tr>
+    <tr>
+      <td class="name">Uso de VPN<br><span class="cat-tag cat-dig">Digital</span></td>
+      <td class="desc">Utiliza rede privada virtual</td>
+      <td class="note">Maturidade digital (sem modelo)</td>
+      <td class="ref">Proxy de maturidade digital avançada — correlaciona com alto nível de adoção tecnológica e perfil profissional de TI (TAM, Venkatesh et al. MIS Quarterly 2012).</td>
+    </tr>
+
+    <!-- FENOTIPAGEM -->
+    <tr><td colspan="4" class="cat-group-label">Fenotipagem Digital — requer consentimento explícito (LGPD Art. 7º, I)</td></tr>
+    <tr>
+      <td class="name">Distância percorrida/dia<br><span class="cat-tag cat-fen">Feno</span></td>
+      <td class="desc">Km/dia via GPS passivo — proxy de mobilidade</td>
+      <td class="note">Triagem de depressão</td>
+      <td class="ref">r=−0,25 com PHQ-9 — maior preditor GPS (meta-análise k=19, n=2.930, Terhorst et al. JMIR 2024). Correlação pequena a média; consistente entre estudos.</td>
+    </tr>
+    <tr>
+      <td class="name">Tempo em casa (%)<br><span class="cat-tag cat-fen">Feno</span></td>
+      <td class="desc">% do dia na residência — proxy de retraimento social</td>
+      <td class="note">Triagem de depressão</td>
+      <td class="ref">r=+0,10 com depressão — correlação pequena. Retraimento domiciliar consistente com padrão de retirada social da depressão (meta-análise 2024).</td>
+    </tr>
+    <tr>
+      <td class="name">Entropia de localização<br><span class="cat-tag cat-fen">Feno</span></td>
+      <td class="desc">Variabilidade dos locais visitados via GPS</td>
+      <td class="note">Triagem de depressão</td>
+      <td class="ref">r=−0,17 com PHQ-9 — locais mais variados associados a menos sintomas (meta-análise Terhorst JMIR 2024). Baixa entropia = locais concentrados.</td>
+    </tr>
+    <tr>
+      <td class="name">Regularidade circadiana<br><span class="cat-tag cat-fen">Feno</span></td>
+      <td class="desc">Consistência do padrão de 24h via GPS/acelerômetro</td>
+      <td class="note">Triagem de depressão, Triagem de ansiedade, Risco episódio de humor</td>
+      <td class="ref">r=−0,63 com PHQ-9 em n=28 (Saeb et al. 2015, PMC4526997). Alta correlação em estudo individual — não replicada em n grandes. Shifts de fase: AUC=0,98 para mania (Nour 2024).</td>
+    </tr>
+    <tr>
+      <td class="name">Desbloqueios de tela/dia<br><span class="cat-tag cat-fen">Feno</span></td>
+      <td class="desc">Frequência de desbloqueios — correlaciona com depressão</td>
+      <td class="note">Triagem de depressão</td>
+      <td class="ref">Correlação positiva com depressão: mais desbloqueios = mais sintomas (Saeb et al. 2015). Interpretação: busca de distração ou reforço negativo.</td>
+    </tr>
+    <tr>
+      <td class="name">Uso noturno (após 22h)<br><span class="cat-tag cat-fen">Feno</span></td>
+      <td class="desc">Uso após 22h — proxy de cronotipo e solidão</td>
+      <td class="note">Triagem de ansiedade</td>
+      <td class="ref">Cronotipo noturno: piores índices de ansiedade, depressão e sono. Solidão severa: uso do teclado significativamente maior durante horário de sono (Biomedical Eng. Letters 2024).</td>
+    </tr>
+    <tr>
+      <td class="name">Velocidade de digitação<br><span class="cat-tag cat-fen">Feno</span></td>
+      <td class="desc">WPM médio em teclado virtual — reduzida em depressão</td>
+      <td class="note">Triagem de depressão</td>
+      <td class="ref">Lentificação prediz PHQ-9 e função cognitiva em mood disorders (BiAffect keyboard, PMC12412914, 2025, n=127). Retardo psicomotor reflete-se na cadência de digitação.</td>
+    </tr>
+    <tr>
+      <td class="name">HRV (variabilidade cardíaca)<br><span class="cat-tag cat-fen">Feno</span></td>
+      <td class="desc">Variabilidade entre batimentos via wearable</td>
+      <td class="note">Triagem de ansiedade, Risco episódio de humor</td>
+      <td class="ref">Deep learning com HRV 5 min: 83% acurácia para ansiedade (Nath et al. 2020, n=652). HRV reduzida em TAG vs controles (Tomasi et al. 2024, n=240, CAMH). Confundidores: idade, medicação, condicionamento.</td>
+    </tr>
+    <tr>
+      <td class="name">Passos/dia (acelerômetro)<br><span class="cat-tag cat-fen">Feno</span></td>
+      <td class="desc">Contagem passiva via sensor</td>
+      <td class="note">Triagem de depressão, Triagem de ansiedade, Risco episódio de humor</td>
+      <td class="ref">Atividade motora reduzida em depressão; aumentada em mania — padrão invertido permite discriminar tipo de episódio (PMC10753422, revisão sistemática).</td>
+    </tr>
+    <tr>
+      <td class="name">Contatos Bluetooth/dia<br><span class="cat-tag cat-fen">Feno</span></td>
+      <td class="desc">Dispositivos únicos detectados — proxy de interação social presencial</td>
+      <td class="note">Risco episódio de humor</td>
+      <td class="ref">Redução de interações presenciais: sinal de episódio depressivo iminente (PMC10753422). Estudado principalmente em contexto hospitalar — generalização para ambulatorial é limitada.</td>
+    </tr>
+    <tr>
+      <td class="name">Sono via wearable<br><span class="cat-tag cat-fen">Feno</span></td>
+      <td class="desc">Duração, eficiência e fase do sono medidas passivamente</td>
+      <td class="note">Triagem de ansiedade, Risco episódio de humor</td>
+      <td class="ref">Feature mais importante do modelo Nour 2024: fase atrasada = episódio depressivo; fase adiantada = episódio maníaco. AUC=0,80/0,98/0,95 para dep/mania/hipomania (n=168, 587 dias).</td>
+    </tr>
+
+    </tbody>
+  </table>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════════
+     SEÇÃO 2 — MODELOS N1
+═════════════════════════════════════════════════════════════════ -->
+<div class="section" id="sec-n1">
+  <div class="section-head">
+    <h2>§2 Modelos N1 — Inferências primárias</h2>
+    <span class="sh-note">14 modelos · calculados diretamente dos dados brutos</span>
+  </div>
+
+  <div class="models-grid">
+
+    <!-- SES -->
+    <div class="model-card">
+      <div class="model-card-head">
+        <span class="mnbadge n1">N1</span>
+        <span class="mname">Classe socioeconômica (ABEP)</span>
+        <span class="mdom">Social</span>
+      </div>
+      <div class="model-card-body">
+        <div class="model-col">
+          <h4>Variáveis e pesos</h4>
+          <div class="var-list">
+            <div class="var-item"><span class="var-name">Renda declarada</span><span class="var-weight">32%</span></div>
+            <div class="var-item"><span class="var-name">Eletrodomésticos</span><span class="var-weight">14%</span></div>
+            <div class="var-item"><span class="var-name">Tipo de imóvel</span><span class="var-weight">12%</span></div>
+            <div class="var-item"><span class="var-name">Renda familiar</span><span class="var-weight">10%</span></div>
+            <div class="var-item"><span class="var-name">Possui veículo</span><span class="var-weight">10%</span></div>
+            <div class="var-item"><span class="var-name">Escolaridade</span><span class="var-weight">10%</span></div>
+            <div class="var-item"><span class="var-name">Possui computador</span><span class="var-weight">6%</span></div>
+            <div class="var-item"><span class="var-name">CEP</span><span class="var-weight">6%</span></div>
+          </div>
+        </div>
+        <div class="model-col">
+          <h4>Fonte e desempenho</h4>
+          <p><strong>Modelo:</strong> Critério Brasil ABEP 2022 — posse de bens e escolaridade do chefe</p>
+          <p class="metric" style="margin-top:.5rem">Acurácia ~88% (IBGE/PNAD 2022)</p>
+          <p class="caveat" style="margin-top:.7rem">Usa proxies — o critério original exige questionário específico com cortes por bem. Resultado é estimativa de faixa, não classificação exata.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- SES_GEO -->
+    <div class="model-card">
+      <div class="model-card-head">
+        <span class="mnbadge n1">N1</span>
+        <span class="mname">NSE geográfico (GeoSES / IVS)</span>
+        <span class="mdom">Social</span>
+      </div>
+      <div class="model-card-body">
+        <div class="model-col">
+          <h4>Variáveis e pesos</h4>
+          <div class="var-list">
+            <div class="var-item"><span class="var-name">CEP</span><span class="var-weight">35%</span></div>
+            <div class="var-item"><span class="var-name">IDH do município</span><span class="var-weight">28%</span></div>
+            <div class="var-item"><span class="var-name">IVS da área</span><span class="var-weight">22%</span></div>
+            <div class="var-item"><span class="var-name">Bairro</span><span class="var-weight">10%</span></div>
+            <div class="var-item"><span class="var-name">Zona urbana/rural</span><span class="var-weight">5%</span></div>
+          </div>
+        </div>
+        <div class="model-col">
+          <h4>Fonte e desempenho</h4>
+          <p><strong>Modelo:</strong> GeoSES-BR — Barrozo et al. 2020 (PLOS ONE, PMC7190143); IVS-IPEA 2022</p>
+          <p class="metric" style="margin-top:.5rem">r &gt;0,85 com IDH-M; AIC −4.583 vs −524 do IDH isolado</p>
+          <p class="caveat" style="margin-top:.7rem">Índice de área — representa o perfil médio da região, não do indivíduo. GeoSES-BR usa Censo 2010 (defasado); IVS-IPEA 2022 é mais atualizado.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- CARDIO -->
+    <div class="model-card">
+      <div class="model-card-head">
+        <span class="mnbadge n1">N1</span>
+        <span class="mname">Risco cardiovascular (Framingham)</span>
+        <span class="mdom">Saúde</span>
+      </div>
+      <div class="model-card-body">
+        <div class="model-col">
+          <h4>Variáveis e pesos</h4>
+          <div class="var-list">
+            <div class="var-item"><span class="var-name">Pressão arterial sistólica</span><span class="var-weight">28%</span></div>
+            <div class="var-item"><span class="var-name">Colesterol total + HDL</span><span class="var-weight">22%</span></div>
+            <div class="var-item"><span class="var-name">Tabagismo</span><span class="var-weight">14%</span></div>
+            <div class="var-item"><span class="var-name">Diabetes</span><span class="var-weight">14%</span></div>
+            <div class="var-item"><span class="var-name">Idade</span><span class="var-weight">14%</span></div>
+            <div class="var-item"><span class="var-name">Anti-hipertensivo</span><span class="var-weight">8%</span></div>
+          </div>
+        </div>
+        <div class="model-col">
+          <h4>Fonte e desempenho</h4>
+          <p><strong>Modelo:</strong> D'Agostino et al. 2008 — Framingham General CVD Risk Score (Circulation 118:24)</p>
+          <p class="metric" style="margin-top:.5rem">AUC = 0,794 (IC95%: 0,743–0,844)</p>
+          <p class="caveat" style="margin-top:.7rem">Desenvolvido em população norte-americana caucasiana (1948–1971). MS Brasil adaptou o score. Válido para 30–74 anos sem doença CV prévia.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- DIABETES -->
+    <div class="model-card">
+      <div class="model-card-head">
+        <span class="mnbadge n1">N1</span>
+        <span class="mname">Risco de diabetes T2 (FINDRISC)</span>
+        <span class="mdom">Saúde</span>
+      </div>
+      <div class="model-card-body">
+        <div class="model-col">
+          <h4>Variáveis e pesos</h4>
+          <div class="var-list">
+            <div class="var-item"><span class="var-name">Histórico glicemia alta</span><span class="var-weight">25%</span></div>
+            <div class="var-item"><span class="var-name">Histórico familiar DM</span><span class="var-weight">19%</span></div>
+            <div class="var-item"><span class="var-name">IMC</span><span class="var-weight">18%</span></div>
+            <div class="var-item"><span class="var-name">Atividade física ≥30min</span><span class="var-weight">15%</span></div>
+            <div class="var-item"><span class="var-name">Anti-hipertensivo</span><span class="var-weight">12%</span></div>
+            <div class="var-item"><span class="var-name">Idade</span><span class="var-weight">11%</span></div>
+          </div>
+        </div>
+        <div class="model-col">
+          <h4>Fonte e desempenho</h4>
+          <p><strong>Modelo:</strong> Lindström & Tuomilehto 2003 (Diabetes Care 26:3); LA-FINDRISC: Aschner et al. 2023 (Frontiers Endocrinology, n=47.267)</p>
+          <p class="metric" style="margin-top:.5rem">AUC = 0,76 (IC95%: 0,74–0,78) · validação 6 anos</p>
+          <p class="caveat" style="margin-top:.7rem">Desenvolvido na Finlândia. LA-FINDRISC adapta cortes para latinos. IMC é proxy imperfeito para circunferência abdominal.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- CHURN -->
+    <div class="model-card">
+      <div class="model-card-head">
+        <span class="mnbadge n1">N1</span>
+        <span class="mname">Propensão a churn (RFM)</span>
+        <span class="mdom">Marketing</span>
+      </div>
+      <div class="model-card-body">
+        <div class="model-col">
+          <h4>Variáveis e pesos</h4>
+          <div class="var-list">
+            <div class="var-item"><span class="var-name">Recência</span><span class="var-weight">38%</span></div>
+            <div class="var-item"><span class="var-name">Frequência de compras</span><span class="var-weight">20%</span></div>
+            <div class="var-item"><span class="var-name">NPS / Satisfação</span><span class="var-weight">15%</span></div>
+            <div class="var-item"><span class="var-name">Data última compra</span><span class="var-weight">12%</span></div>
+            <div class="var-item"><span class="var-name">Chamados de suporte</span><span class="var-weight">10%</span></div>
+            <div class="var-item"><span class="var-name">Tipo de plano</span><span class="var-weight">5%</span></div>
+          </div>
+        </div>
+        <div class="model-col">
+          <h4>Fonte e desempenho</h4>
+          <p><strong>Modelo:</strong> Fader & Hardie 2005 (Marketing Science 24:2) — BG/NBD; Mena et al. 2024 (Annals of Operations Research)</p>
+          <p class="metric" style="margin-top:.5rem">XGBoost RFM+NPS: AUC-ROC = 0,85</p>
+          <p class="caveat" style="margin-top:.7rem">Recência é o preditor dominante. Pesos refletem importância relativa na literatura — variam por setor e produto.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- LTV -->
+    <div class="model-card">
+      <div class="model-card-head">
+        <span class="mnbadge n1">N1</span>
+        <span class="mname">Lifetime Value (BG/NBD)</span>
+        <span class="mdom">Marketing</span>
+      </div>
+      <div class="model-card-body">
+        <div class="model-col">
+          <h4>Variáveis e pesos</h4>
+          <div class="var-list">
+            <div class="var-item"><span class="var-name">Frequência de compras</span><span class="var-weight">42%</span></div>
+            <div class="var-item"><span class="var-name">Ticket médio</span><span class="var-weight">28%</span></div>
+            <div class="var-item"><span class="var-name">Recência</span><span class="var-weight">22%</span></div>
+            <div class="var-item"><span class="var-name">Tipo de plano</span><span class="var-weight">8%</span></div>
+          </div>
+        </div>
+        <div class="model-col">
+          <h4>Fonte e desempenho</h4>
+          <p><strong>Modelo:</strong> Fader & Hardie 2005 — "Counting your customers the easy way" (Marketing Science 24:2). BG/NBD + Gamma-Gamma.</p>
+          <p class="metric" style="margin-top:.5rem">MAPE = 13,6% em previsão de 39 semanas</p>
+          <p class="caveat" style="margin-top:.7rem">Assume estacionaridade e independência entre R/F e Monetary — pode não valer em contextos sazonais.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- CREDITO -->
+    <div class="model-card">
+      <div class="model-card-head">
+        <span class="mnbadge n1">N1</span>
+        <span class="mname">Risco de crédito (Credit Scoring)</span>
+        <span class="mdom">Financeiro</span>
+      </div>
+      <div class="model-card-body">
+        <div class="model-col">
+          <h4>Variáveis e pesos</h4>
+          <div class="var-list">
+            <div class="var-item"><span class="var-name">Score de crédito</span><span class="var-weight">34%</span></div>
+            <div class="var-item"><span class="var-name">Histórico inadimplência</span><span class="var-weight">22%</span></div>
+            <div class="var-item"><span class="var-name">% uso do limite</span><span class="var-weight">18%</span></div>
+            <div class="var-item"><span class="var-name">Renda declarada</span><span class="var-weight">12%</span></div>
+            <div class="var-item"><span class="var-name">Dívidas ativas</span><span class="var-weight">8%</span></div>
+            <div class="var-item"><span class="var-name">Histórico de crédito</span><span class="var-weight">6%</span></div>
+          </div>
+        </div>
+        <div class="model-col">
+          <h4>Fonte e desempenho</h4>
+          <p><strong>Modelo:</strong> Thomas et al. 2002 (5 Cs do crédito); Bacen NT 40/2022; Duarte et al. 2022 (J. Risk Financial Mgmt, PMC9041570)</p>
+          <p class="metric" style="margin-top:.5rem">GINI = 0,55–0,75 · Score+histórico: GINI ~0,68</p>
+          <p class="caveat" style="margin-top:.7rem">Coeficientes variam por produto (cartão vs. consignado vs. pessoal) e instituição.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- INADIMPL_I -->
+    <div class="model-card">
+      <div class="model-card-head">
+        <span class="mnbadge n1">N1</span>
+        <span class="mname">Inadimplência imediata (Behavioral)</span>
+        <span class="mdom">Financeiro</span>
+      </div>
+      <div class="model-card-body">
+        <div class="model-col">
+          <h4>Variáveis e pesos</h4>
+          <div class="var-list">
+            <div class="var-item"><span class="var-name">% uso do limite</span><span class="var-weight">32%</span></div>
+            <div class="var-item"><span class="var-name">Histórico inadimplência</span><span class="var-weight">28%</span></div>
+            <div class="var-item"><span class="var-name">Dívidas ativas no CPF</span><span class="var-weight">18%</span></div>
+            <div class="var-item"><span class="var-name">Parcelas ativas</span><span class="var-weight">14%</span></div>
+            <div class="var-item"><span class="var-name">Renda declarada</span><span class="var-weight">8%</span></div>
+          </div>
+        </div>
+        <div class="model-col">
+          <h4>Fonte e desempenho</h4>
+          <p><strong>Modelo:</strong> Siddiqi 2012 (Credit Risk Scorecards); Bacen EE80/2020 (Endividamento de Risco)</p>
+          <p class="metric" style="margin-top:.5rem">GINI ~0,68 com 5+ variáveis comportamentais</p>
+          <p class="caveat" style="margin-top:.7rem">Mais preciso para clientes existentes. Multimodalidades + inadimplência ativa são mais efetivos que critérios de renda.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- GERACAO -->
+    <div class="model-card">
+      <div class="model-card-head">
+        <span class="mnbadge n1">N1</span>
+        <span class="mname">Geração demográfica</span>
+        <span class="mdom">Social</span>
+      </div>
+      <div class="model-card-body">
+        <div class="model-col">
+          <h4>Variáveis e pesos</h4>
+          <div class="var-list">
+            <div class="var-item"><span class="var-name">Ano de nascimento</span><span class="var-weight">80%</span></div>
+            <div class="var-item"><span class="var-name">Idade</span><span class="var-weight">15%</span></div>
+            <div class="var-item"><span class="var-name">Plataformas digitais</span><span class="var-weight">3%</span></div>
+            <div class="var-item"><span class="var-name">Streaming assinado</span><span class="var-weight">2%</span></div>
+          </div>
+        </div>
+        <div class="model-col">
+          <h4>Fonte e desempenho</h4>
+          <p><strong>Modelo:</strong> Pew Research Center 2019 (cortes por ano); MIT Media Lab 2021 (proxies digitais)</p>
+          <p class="metric" style="margin-top:.5rem">Ano de nascimento: 100% · Proxies digitais: ~61%</p>
+          <p class="caveat" style="margin-top:.7rem">Sem ano/idade exata, cobertura é baixa e resultado incerto. Proxies digitais são sinal muito fraco isolados.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- VULNERABILIDADE -->
+    <div class="model-card">
+      <div class="model-card-head">
+        <span class="mnbadge n1">N1</span>
+        <span class="mname">Vulnerabilidade social (IVS)</span>
+        <span class="mdom">Social</span>
+      </div>
+      <div class="model-card-body">
+        <div class="model-col">
+          <h4>Variáveis e pesos</h4>
+          <div class="var-list">
+            <div class="var-item"><span class="var-name">IVS da área (IPEA)</span><span class="var-weight">30%</span></div>
+            <div class="var-item"><span class="var-name">IDH do município</span><span class="var-weight">22%</span></div>
+            <div class="var-item"><span class="var-name">Renda individual</span><span class="var-weight">18%</span></div>
+            <div class="var-item"><span class="var-name">CEP</span><span class="var-weight">12%</span></div>
+            <div class="var-item"><span class="var-name">Renda familiar</span><span class="var-weight">10%</span></div>
+            <div class="var-item"><span class="var-name">Escolaridade</span><span class="var-weight">8%</span></div>
+          </div>
+        </div>
+        <div class="model-col">
+          <h4>Fonte e desempenho</h4>
+          <p><strong>Modelo:</strong> IVS-IPEA 2022 — 3 dimensões: infraestrutura urbana, capital humano, renda e trabalho</p>
+          <p class="metric" style="margin-top:.5rem">r = 0,82 com mortalidade infantil · r = 0,78 com analfabetismo</p>
+          <p class="caveat" style="margin-top:.7rem">Índice de área — representa contexto regional, não situação individual. Combine com renda individual.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- GENERO_INF -->
+    <div class="model-card">
+      <div class="model-card-head">
+        <span class="mnbadge n1">N1</span>
+        <span class="mname">Gênero inferido</span>
+        <span class="mdom">Social</span>
+      </div>
+      <div class="model-card-body">
+        <div class="model-col">
+          <h4>Variáveis e pesos</h4>
+          <div class="var-list">
+            <div class="var-item"><span class="var-name">Sexo/gênero declarado</span><span class="var-weight">90%</span></div>
+            <div class="var-item"><span class="var-name">Primeiro nome</span><span class="var-weight">8%</span></div>
+            <div class="var-item"><span class="var-name">Categorias de compra</span><span class="var-weight">2%</span></div>
+          </div>
+        </div>
+        <div class="model-col">
+          <h4>Fonte e desempenho</h4>
+          <p><strong>Modelo:</strong> Análise onomástica PT-BR — Carvalho et al. 2020 (SBC); base de frequência IBGE de nomes por sexo</p>
+          <p class="metric" style="margin-top:.5rem">Nome: 87–91% precisão · Declarado: 100%</p>
+          <p class="caveat" style="margin-top:.7rem">Falha em nomes neutros, modernos e de origens indígena ou africana. Categorias de compra: r=0,44 — sinal fraco.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- PROP_PREMIUM -->
+    <div class="model-card">
+      <div class="model-card-head">
+        <span class="mnbadge n1">N1</span>
+        <span class="mname">Propensão a produtos premium</span>
+        <span class="mdom">Marketing</span>
+      </div>
+      <div class="model-card-body">
+        <div class="model-col">
+          <h4>Variáveis e pesos</h4>
+          <div class="var-list">
+            <div class="var-item"><span class="var-name">Renda declarada</span><span class="var-weight">30%</span></div>
+            <div class="var-item"><span class="var-name">Possui investimentos</span><span class="var-weight">20%</span></div>
+            <div class="var-item"><span class="var-name">Pós-graduação</span><span class="var-weight">18%</span></div>
+            <div class="var-item"><span class="var-name">Patrimônio declarado</span><span class="var-weight">15%</span></div>
+            <div class="var-item"><span class="var-name">Tipo de plano atual</span><span class="var-weight">10%</span></div>
+            <div class="var-item"><span class="var-name">Ticket médio</span><span class="var-weight">7%</span></div>
+          </div>
+        </div>
+        <div class="model-col">
+          <h4>Fonte e desempenho</h4>
+          <p><strong>Modelo:</strong> ANBIMA 2023 (Raio X do Investidor); McKinsey Digital Consumer Survey 2022</p>
+          <p class="metric" style="margin-top:.5rem">OR &gt;8 para propensão premium (ANBIMA 2023)</p>
+          <p class="caveat" style="margin-top:.7rem">"Premium" varia por produto e setor. Calibrado para serviços financeiros e bens duráveis.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- DEPRESSÃO -->
+    <div class="model-card" style="border-left:3px solid #0F6E56">
+      <div class="model-card-head">
+        <span class="mnbadge n1">N1</span>
+        <span class="mname">Triagem de depressão (fenotipagem)</span>
+        <span class="mdom" style="color:#0F6E56">Saúde mental</span>
+      </div>
+      <div class="model-card-body">
+        <div class="model-col">
+          <h4>Variáveis e pesos</h4>
+          <div class="var-list">
+            <div class="var-item"><span class="var-name">Distância percorrida/dia</span><span class="var-weight">25%</span></div>
+            <div class="var-item"><span class="var-name">Regularidade circadiana</span><span class="var-weight">20%</span></div>
+            <div class="var-item"><span class="var-name">Entropia de localização</span><span class="var-weight">17%</span></div>
+            <div class="var-item"><span class="var-name">Velocidade de digitação</span><span class="var-weight">13%</span></div>
+            <div class="var-item"><span class="var-name">Desbloqueios de tela/dia</span><span class="var-weight">10%</span></div>
+            <div class="var-item"><span class="var-name">Tempo em casa</span><span class="var-weight">10%</span></div>
+            <div class="var-item"><span class="var-name">Passos/dia</span><span class="var-weight">5%</span></div>
+          </div>
+        </div>
+        <div class="model-col">
+          <h4>Fonte e desempenho</h4>
+          <p><strong>Modelo:</strong> Saeb et al. 2015 (PMC4526997); meta-análise GPS+depressão: Terhorst et al. JMIR 2024 (k=19, n=2.930); typing: BiAffect 2025 (PMC12412914)</p>
+          <p class="metric" style="margin-top:.5rem">AUC 0,94–0,99 (estudos supervisionados) · GPS+ritmo: 85%</p>
+          <p class="caveat alert" style="margin-top:.7rem">⚠ TRIAGEM APENAS — nunca diagnóstico individual. Maioria dos estudos: n=7–30, amostras universitárias. Risco de viés de publicação documentado. Exige ≥2 semanas de dados. Requer consentimento e LGPD.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ANSIEDADE -->
+    <div class="model-card" style="border-left:3px solid #0F6E56">
+      <div class="model-card-head">
+        <span class="mnbadge n1">N1</span>
+        <span class="mname">Triagem de ansiedade (fenotipagem)</span>
+        <span class="mdom" style="color:#0F6E56">Saúde mental</span>
+      </div>
+      <div class="model-card-body">
+        <div class="model-col">
+          <h4>Variáveis e pesos</h4>
+          <div class="var-list">
+            <div class="var-item"><span class="var-name">HRV (variabilidade cardíaca)</span><span class="var-weight">45%</span></div>
+            <div class="var-item"><span class="var-name">Sono via wearable</span><span class="var-weight">20%</span></div>
+            <div class="var-item"><span class="var-name">Passos/dia</span><span class="var-weight">15%</span></div>
+            <div class="var-item"><span class="var-name">Uso noturno (após 22h)</span><span class="var-weight">12%</span></div>
+            <div class="var-item"><span class="var-name">Regularidade circadiana</span><span class="var-weight">8%</span></div>
+          </div>
+        </div>
+        <div class="model-col">
+          <h4>Fonte e desempenho</h4>
+          <p><strong>Modelo:</strong> Tomasi et al. 2024 (Psychophysiology, n=240, CAMH); Nath et al. 2020 (ScienceDirect, n=652); Jacobson et al. 2020 (JMIR, n=265)</p>
+          <p class="metric" style="margin-top:.5rem">HRV deep learning: 83% acurácia · Sensibilidade 84% / Especificidade 53%</p>
+          <p class="caveat alert" style="margin-top:.7rem">⚠ Especificidade 53% → muitos falsos positivos. HRV varia com idade, medicação e condicionamento. TRIAGEM apenas. Consentimento e LGPD obrigatórios.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- HUMOR -->
+    <div class="model-card" style="border-left:3px solid #0F6E56">
+      <div class="model-card-head">
+        <span class="mnbadge n1">N1</span>
+        <span class="mname">Risco de episódio de humor (fenotipagem)</span>
+        <span class="mdom" style="color:#0F6E56">Saúde mental</span>
+      </div>
+      <div class="model-card-body">
+        <div class="model-col">
+          <h4>Variáveis e pesos</h4>
+          <div class="var-list">
+            <div class="var-item"><span class="var-name">Sono via wearable (duração + fase)</span><span class="var-weight">35%</span></div>
+            <div class="var-item"><span class="var-name">Regularidade circadiana</span><span class="var-weight">30%</span></div>
+            <div class="var-item"><span class="var-name">Passos/dia</span><span class="var-weight">15%</span></div>
+            <div class="var-item"><span class="var-name">HRV</span><span class="var-weight">12%</span></div>
+            <div class="var-item"><span class="var-name">Contatos Bluetooth/dia</span><span class="var-weight">8%</span></div>
+          </div>
+        </div>
+        <div class="model-col">
+          <h4>Fonte e desempenho</h4>
+          <p><strong>Modelo:</strong> Nour et al. 2024 (npj Digital Medicine, n=168, 587 dias de follow-up); revisão sistemática PMC10753422</p>
+          <p class="metric" style="margin-top:.5rem">AUC: depressivo 0,80 · maníaco 0,98 · hipomaníaco 0,95</p>
+          <p class="caveat alert" style="margin-top:.7rem">⚠ Para pacientes com diagnóstico ESTABELECIDO de transtorno do humor — não é triagem para população geral. Exige ≥14 dias de dados longitudinais. Consentimento e LGPD obrigatórios.</p>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /models-grid -->
+</div>
+
+<!-- ════════════════════════════════════════════════════════════════
+     SEÇÃO 3 — MODELOS N2
+═════════════════════════════════════════════════════════════════ -->
+<div class="section" id="sec-n2">
+  <div class="section-head">
+    <h2>§3 Modelos N2 — Inferências compostas</h2>
+    <span class="sh-note">7 modelos · combinam inferências N1</span>
+  </div>
+
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th style="width:20%">Modelo</th>
+        <th style="width:24%">N1 que combina (pesos)</th>
+        <th style="width:18%">Desempenho</th>
+        <th style="width:20%">Fonte</th>
+        <th style="width:18%">Caveat principal</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="name">Segmentação cliente<br><small style="font-weight:400;color:#888">valor × risco</small></td>
+        <td class="desc">Classe social (30%) + Risco crédito (35%) + LTV (35%)</td>
+        <td class="ref"><span style="font-weight:700;color:#1a5fc8">GINI ~0,72</span></td>
+        <td class="ref">FICO Score 10 Suite (Fair Isaac 2021)</td>
+        <td class="note">Incertezas das entradas se acumulam. Cada dimensão capta aspecto diferente.</td>
+      </tr>
+      <tr>
+        <td class="name">Risco de fraude</td>
+        <td class="desc">Risco crédito (40%) + Inadimplência behavioral (35%) + NSE geográfico (25%)</td>
+        <td class="ref"><span style="font-weight:700;color:#1a5fc8">AUC = 0,92</span></td>
+        <td class="ref">Phua et al. SIGKDD 2010; FEBRABAN 2023</td>
+        <td class="note">Degrada com mudança de padrão dos fraudadores. Necessita atualização contínua.</td>
+      </tr>
+      <tr>
+        <td class="name">Potencial upsell/<br>cross-sell</td>
+        <td class="desc">LTV (40%) + Propensão a churn (35%) + Classe social (25%)</td>
+        <td class="ref"><span style="font-weight:700;color:#1a5fc8">Lift &gt;3×</span></td>
+        <td class="ref">Neslin et al. 2006 (J. Marketing Research); McKinsey 2022</td>
+        <td class="note">Lift de 3× é para modelos calibrados em histórico próprio.</td>
+      </tr>
+      <tr>
+        <td class="name">Saúde física integrada<br><small style="font-weight:400;color:#888">CV + metabólico</small></td>
+        <td class="desc">Risco cardiovascular (55%) + Risco DM2 (45%)</td>
+        <td class="ref"><span style="font-weight:700;color:#1a5fc8">AUC = 0,78</span> (DALY)</td>
+        <td class="ref">GBD 2019 (Lancet 396:10258); OMS SDH 2008</td>
+        <td class="note">DALY é métrica populacional. Framingham: 30–74 anos. FINDRISC: sem DM prévio.</td>
+      </tr>
+      <tr>
+        <td class="name" style="color:#0F6E56">Triagem saúde mental integrada</td>
+        <td class="desc">Triagem depressão (50%) + Triagem ansiedade (50%)</td>
+        <td class="ref"><span style="font-weight:700;color:#0F6E56">AUC 0,85–0,94</span> (estudos controlados)</td>
+        <td class="ref">Combinação de biomarcadores digitais: GPS + HRV + sono + digitação</td>
+        <td class="note" style="color:#9a2020;font-weight:500">⚠ TRIAGEM. Pesos 50/50 são heurísticos sem estudo publicado que os estabeleça. Nunca usar para decisões individuais sem revisão clínica.</td>
+      </tr>
+      <tr>
+        <td class="name">Inclusão financeira (IIF)</td>
+        <td class="desc">NSE geográfico (35%) + Risco crédito (35%) + Classe social (30%)</td>
+        <td class="ref"><span style="font-weight:700;color:#1a5fc8">r = 0,79</span> com IIF real</td>
+        <td class="ref">IIF Bacen 2021 — acesso, uso e qualidade do sistema financeiro</td>
+        <td class="note">Índice municipal — variações intramunicipais não captadas.</td>
+      </tr>
+      <tr>
+        <td class="name">Potencial cliente premium</td>
+        <td class="desc">Classe social (35%) + LTV (35%) + Risco crédito (30%)</td>
+        <td class="ref"><span style="font-weight:700;color:#1a5fc8">GINI = 0,65</span></td>
+        <td class="ref">McKinsey Digital Consumer Survey 2022; ANBIMA 2023</td>
+        <td class="note">"Premium" varia por produto. Não generaliza sem recalibração.</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════════
+     SEÇÃO 4 — MODELOS N3
+═════════════════════════════════════════════════════════════════ -->
+<div class="section" id="sec-n3">
+  <div class="section-head">
+    <h2>§4 Modelos N3 — Meta-inferências</h2>
+    <span class="sh-note">2 modelos · combinam inferências N2 · máxima acumulação de incerteza</span>
+  </div>
+
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th style="width:18%">Modelo</th>
+        <th style="width:26%">N2 que combina (pesos)</th>
+        <th style="width:18%">Desempenho</th>
+        <th style="width:20%">Fonte</th>
+        <th style="width:18%">Caveat principal</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="name">Perfil 360° do indivíduo</td>
+        <td class="desc">Segmentação cliente (40%) + Saúde física integrada (30%) + Inclusão financeira (30%)</td>
+        <td class="ref"><span style="font-weight:700;color:#1a5fc8">−38% erro de segmentação</span></td>
+        <td class="ref">Customer 360 — Salesforce Research 2022; IDS-IPEA</td>
+        <td class="note">Constructo analítico, não modelo validado em população específica. Incertezas se acumulam em cada nível.</td>
+      </tr>
+      <tr>
+        <td class="name">Risco sistêmico de crédito</td>
+        <td class="desc">Risco de fraude (45%) + Segmentação cliente (35%) + Inclusão financeira (20%)</td>
+        <td class="ref"><span style="font-weight:700;color:#1a5fc8">AUC = 0,88</span></td>
+        <td class="ref">Bacen + FEBRABAN 2022 — modelo macro-prudencial de portfólio</td>
+        <td class="note">Opera no nível de portfólio — extrapolação para decisões individuais é metodologicamente inadequada.</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════════
+     SEÇÃO 5 — REFERÊNCIAS
+═════════════════════════════════════════════════════════════════ -->
+<div class="section" id="sec-refs">
+  <div class="section-head">
+    <h2>§5 Referências científicas</h2>
+    <span class="sh-note">Ordenadas por domínio</span>
+  </div>
+
+  <table class="ref-table">
+    <thead>
+      <tr>
+        <th style="width:8%">Cód.</th>
+        <th style="width:42%">Referência completa</th>
+        <th style="width:15%">Métrica chave</th>
+        <th style="width:35%">Uso no engine</th>
+      </tr>
+    </thead>
+    <tbody>
+
+    <!-- SOCIOECONÔMICO -->
+    <tr><td colspan="4" class="cat-group-label">Socioeconômico / Demográfico</td></tr>
+    <tr>
+      <td class="rcode">ABEP22</td>
+      <td class="rcite">Associação Brasileira de Empresas de Pesquisa (ABEP). <em>Critério de Classificação Econômica Brasil 2022.</em> São Paulo: ABEP, 2022. abep.org/criterio-brasil</td>
+      <td class="rmetric">Acurácia ~88%</td>
+      <td class="ruse">Pesos das variáveis do modelo Classe socioeconômica (SES)</td>
+    </tr>
+    <tr>
+      <td class="rcode">GeoSES20</td>
+      <td class="rcite">Barrozo, L.V. et al. "GeoSES: A socioeconomic index for health and social research in Brazil." <em>PLOS ONE</em>, 15(4):e0232074, 2020. PMC7190143</td>
+      <td class="rmetric">r &gt;0,85 com IDH-M; AIC −4.583</td>
+      <td class="ruse">Modelo NSE geográfico. Correlação CEP–renda. GeoSES-IM para intraurbano.</td>
+    </tr>
+    <tr>
+      <td class="rcode">IVS22</td>
+      <td class="rcite">IPEA. <em>Atlas da Vulnerabilidade Social nos Municípios Brasileiros.</em> Brasília: IPEA, 2022. ivs.ipea.gov.br</td>
+      <td class="rmetric">r=0,82 mortalidade infantil</td>
+      <td class="ruse">Modelo Vulnerabilidade social. Dado direto IVS. Peso zona urbana/rural.</td>
+    </tr>
+    <tr>
+      <td class="rcode">SOARES05</td>
+      <td class="rcite">Soares, T.M. et al. "Medidas de nível socioeconômico em pesquisas sociais." <em>Opinião Pública</em>, UNICAMP, 2005. SciELO.</td>
+      <td class="rmetric">r=0,87 CEP vs setor censitário</td>
+      <td class="ruse">Justifica uso de CEP como proxy de renda. Dado geo.</td>
+    </tr>
+    <tr>
+      <td class="rcode">IBGE22</td>
+      <td class="rcite">IBGE. <em>PNAD Contínua 2022 — Rendimento de todas as fontes.</em> Rio de Janeiro: IBGE, 2023. ibge.gov.br</td>
+      <td class="rmetric">r≈0,60 escolaridade–renda</td>
+      <td class="ruse">Pesos de escolaridade, renda, raça/cor no SES. Diferencial regional.</td>
+    </tr>
+    <tr>
+      <td class="rcode">PEW19</td>
+      <td class="rcite">Dimock, M. "Defining generations: Where Millennials end and Generation Z begins." <em>Pew Research Center</em>, Jan. 2019. pewresearch.org</td>
+      <td class="rmetric">Cortes por ano: 100% precisão</td>
+      <td class="ruse">Modelo Geração demográfica — cortes definidores de cada geração.</td>
+    </tr>
+    <tr>
+      <td class="rcode">HOUW06</td>
+      <td class="rcite">Houweling, T.A.J. et al. "Measuring health inequality among children in developing countries." <em>Health Policy and Planning</em>, 21(6):459–469, 2006. Oxford.</td>
+      <td class="rmetric">PCA: 12–27% variância NSE</td>
+      <td class="ruse">Justifica pesos dos bens duráveis no SES. Metodologia de índice de riqueza.</td>
+    </tr>
+
+    <!-- SAÚDE CLÍNICA -->
+    <tr><td colspan="4" class="cat-group-label">Saúde clínica</td></tr>
+    <tr>
+      <td class="rcode">FRAMING08</td>
+      <td class="rcite">D'Agostino, R.B. et al. "General Cardiovascular Risk Profile for Use in Primary Care." <em>Circulation</em>, 118:24, pp. 2400–2407, 2008. AHA Journals.</td>
+      <td class="rmetric">AUC = 0,794</td>
+      <td class="ruse">Modelo Risco cardiovascular. Coeficientes β do Cox para todos os preditores.</td>
+    </tr>
+    <tr>
+      <td class="rcode">PENCINA09</td>
+      <td class="rcite">Pencina, M.J. et al. "Systematic Examination of the Updated Framingham Heart Study General CVD Risk Profile." <em>Circulation</em>, 120(13):1187–1194, 2009.</td>
+      <td class="rmetric">Sinergia tabagismo+HAS</td>
+      <td class="ruse">Caveats do modelo Framingham. Validação e efeitos sinérgicos.</td>
+    </tr>
+    <tr>
+      <td class="rcode">FINDRISC03</td>
+      <td class="rcite">Lindström, J., Tuomilehto, J. "The diabetes risk score: a practical tool to predict type 2 diabetes risk." <em>Diabetes Care</em>, 26(3):725–731, 2003.</td>
+      <td class="rmetric">Pontos por variável (0–26)</td>
+      <td class="ruse">Modelo Risco DM2. Estrutura de pontuação e variáveis do FINDRISC.</td>
+    </tr>
+    <tr>
+      <td class="rcode">ASCHNER23</td>
+      <td class="rcite">Aschner, P. et al. "Large scale application of FINDRISC in Latin American and Caribbean populations." <em>Frontiers in Endocrinology</em>, 14:1188784, 2023. n=47.267.</td>
+      <td class="rmetric">OR=63× (hist. glicemia); OR=38× (família DM)</td>
+      <td class="ruse">Pesos do FINDRISC adaptados para LATAM. OR de cada variável.</td>
+    </tr>
+    <tr>
+      <td class="rcode">GERGELY25</td>
+      <td class="rcite">Gergely, T. et al. "Validation of FINDRISC in a Central-European Population." <em>Primary Health Care Research & Development</em>, Cambridge, 2025.</td>
+      <td class="rmetric">AUC=0,76 em 6 anos</td>
+      <td class="ruse">Performance reportada para o modelo Risco DM2.</td>
+    </tr>
+    <tr>
+      <td class="rcode">ALBERT09</td>
+      <td class="rcite">Alberti, K.G. et al. "Harmonizing the Metabolic Syndrome." <em>Circulation</em>, 120(16):1640–1645, 2009.</td>
+      <td class="rmetric">RR=2–3× para eventos CV</td>
+      <td class="ruse">Efeito multiplicativo de comorbidades no modelo Saúde física integrada.</td>
+    </tr>
+
+    <!-- MARKETING / COMPORTAMENTAL -->
+    <tr><td colspan="4" class="cat-group-label">Marketing / Comportamental</td></tr>
+    <tr>
+      <td class="rcode">FADER05a</td>
+      <td class="rcite">Fader, P.S., Hardie, B.G.S. "Counting your customers the easy way: An alternative to the Pareto/NBD model." <em>Marketing Science</em>, 24(2):275–284, 2005. INFORMS.</td>
+      <td class="rmetric">MAPE = 13,6%</td>
+      <td class="ruse">Modelo LTV. Pesos de frequência, recência e monetary no BG/NBD.</td>
+    </tr>
+    <tr>
+      <td class="rcode">FADER05b</td>
+      <td class="rcite">Fader, P.S., Hardie, B.G.S., Lee, K.L. "RFM and CLV: Using Iso-value Curves for Customer Base Analysis." <em>J. Marketing Research</em>, 42(4):415–430, 2005. SAGE.</td>
+      <td class="rmetric">Recência = maior variância CLV</td>
+      <td class="ruse">Pesos de recência e frequência no modelo Propensão a churn.</td>
+    </tr>
+    <tr>
+      <td class="rcode">MENA24</td>
+      <td class="rcite">Mena, G. et al. "Exploiting time-varying RFM measures for customer churn prediction with a modular approach." <em>Annals of Operations Research</em>, 339:765–787, 2024. Springer.</td>
+      <td class="rmetric">AUC-ROC = 0,85</td>
+      <td class="ruse">Performance do modelo Churn. Ganho de NPS (+0,07 AUC). Feature importance.</td>
+    </tr>
+    <tr>
+      <td class="rcode">ZAGHLOUL25</td>
+      <td class="rcite">Zaghloul, M. et al. "Explainability, risk modeling and segmentation based customer churn analytics." <em>arXiv</em>, 2510.11604, 2025.</td>
+      <td class="rmetric">SHAP: suporte = maior efeito</td>
+      <td class="ruse">Peso de chamados de suporte no modelo Churn. SHAP values.</td>
+    </tr>
+    <tr>
+      <td class="rcode">NESLIN06</td>
+      <td class="rcite">Neslin, S.A. et al. "Defection Detection: Measuring and Understanding the Predictive Accuracy of Customer Churn Models." <em>J. Marketing Research</em>, 43(2), 2006.</td>
+      <td class="rmetric">Lift &gt;3×</td>
+      <td class="ruse">Performance do modelo Upsell/cross-sell.</td>
+    </tr>
+    <tr>
+      <td class="rcode">BAYMARD24</td>
+      <td class="rcite">Baymard Institute. <em>Cart Abandonment Rate Statistics.</em> 2024. baymard.com/lists/cart-abandonment-rate</td>
+      <td class="rmetric">Conversão 2% → 14%</td>
+      <td class="ruse">Nota científica de abandono de carrinho + CTR. Nota de dado.</td>
+    </tr>
+
+    <!-- FINANCEIRO / CRÉDITO -->
+    <tr><td colspan="4" class="cat-group-label">Financeiro / Crédito</td></tr>
+    <tr>
+      <td class="rcode">THOMAS02</td>
+      <td class="rcite">Thomas, L.C., Edelman, D.B., Crook, J.N. <em>Credit Scoring and Its Applications.</em> Philadelphia: SIAM, 2002.</td>
+      <td class="rmetric">5 Cs do crédito</td>
+      <td class="ruse">Estrutura dos modelos Risco de crédito e Inadimplência behavioral. Referência metodológica.</td>
+    </tr>
+    <tr>
+      <td class="rcode">BACEN_NT40</td>
+      <td class="rcite">Banco Central do Brasil. <em>Nota Técnica n.º 40/2022 — Modelagem de Risco de Crédito.</em> Brasília: Bacen, 2022. bcb.gov.br</td>
+      <td class="rmetric">ΔGINI≈+0,15 (bureaus vs. cadastral)</td>
+      <td class="ruse">Pesos do modelo Risco de crédito. Preditor % uso do limite (r=0,58). Conformidade regulatória.</td>
+    </tr>
+    <tr>
+      <td class="rcode">BACEN_EE80</td>
+      <td class="rcite">Banco Central do Brasil. <em>Estudo Especial n.º 80/2020 — Endividamento de Risco no Brasil.</em> Brasília: Bacen, 2020. bcb.gov.br</td>
+      <td class="rmetric">Inadimplência+multimodalidades &gt; critérios de renda</td>
+      <td class="ruse">Pesos do modelo Inadimplência behavioral. Critérios de superendividamento.</td>
+    </tr>
+    <tr>
+      <td class="rcode">DUARTE22</td>
+      <td class="rcite">Duarte, F. et al. "A logistic regression model for consumer default risk." <em>J. Risk and Financial Management</em>, 15(6):270, 2022. PMC9041570.</td>
+      <td class="rmetric">Acurácia = 89,79%</td>
+      <td class="ruse">Performance reportada para o histórico de inadimplência como preditor.</td>
+    </tr>
+    <tr>
+      <td class="rcode">SIDDIQI12</td>
+      <td class="rcite">Siddiqi, N. <em>Credit Risk Scorecards: Developing and Implementing Intelligent Credit Scoring.</em> Hoboken: Wiley, 2012.</td>
+      <td class="rmetric">GINI ~0,68 behavioral</td>
+      <td class="ruse">Metodologia do modelo Inadimplência behavioral. GINI de referência.</td>
+    </tr>
+    <tr>
+      <td class="rcode">BACEN_IIF</td>
+      <td class="rcite">Banco Central do Brasil. <em>Relatório de Inclusão Financeira 2021.</em> Brasília: Bacen, 2021. bcb.gov.br/publicacoes/relatorioinclusaofinanceira</td>
+      <td class="rmetric">r=0,79 com IIF real municipal</td>
+      <td class="ruse">Performance do modelo N2 Inclusão financeira. Dimensões acesso/uso/qualidade.</td>
+    </tr>
+    <tr>
+      <td class="rcode">ANBIMA23</td>
+      <td class="rcite">ANBIMA. <em>Raio X do Investidor Brasileiro 2023.</em> São Paulo: ANBIMA, 2023. anbima.com.br</td>
+      <td class="rmetric">OR=4,2 para investimento; OR&gt;8 premium</td>
+      <td class="ruse">Pesos dos modelos Propensão premium e Potencial cliente premium.</td>
+    </tr>
+    <tr>
+      <td class="rcode">FICO21</td>
+      <td class="rcite">Fair Isaac Corporation. <em>FICO Score 10 Suite Technology Overview.</em> 2021. ficoscore.com</td>
+      <td class="rmetric">GINI ~0,72 (SES+crédito+LTV)</td>
+      <td class="ruse">Performance do modelo N2 Segmentação cliente.</td>
+    </tr>
+
+    <!-- FENOTIPAGEM DIGITAL -->
+    <tr><td colspan="4" class="cat-group-label">Fenotipagem Digital / Saúde Mental</td></tr>
+    <tr>
+      <td class="rcode">SAEB15</td>
+      <td class="rcite">Saeb, S. et al. "Mobile Phone Sensor Correlates of Depressive Symptom Severity in Daily-Life Behavior: An Exploratory Study." <em>JMIR</em>, 2015. PMC4526997.</td>
+      <td class="rmetric">r=−0,63 ritmo circadiano–PHQ-9</td>
+      <td class="ruse">Pesos de ritmo circadiano e desbloqueios no modelo Triagem de depressão.</td>
+    </tr>
+    <tr>
+      <td class="rcode">TERHORST24</td>
+      <td class="rcite">Terhorst, Y. et al. "GPS mobility features and depression: A systematic review and meta-analysis." <em>JMIR</em>, 2024. k=19 estudos, n=2.930.</td>
+      <td class="rmetric">r=−0,25 distância–PHQ-9</td>
+      <td class="ruse">Peso de distância percorrida/dia no modelo Triagem de depressão. Meta-analítico.</td>
+    </tr>
+    <tr>
+      <td class="rcode">BIAFFECT25</td>
+      <td class="rcite">Brozgol, M. et al. "Predicting Cognitive Functioning in Mood Disorders through Smartphone Typing Dynamics." <em>PMC12412914</em>, 2025. BiAffect keyboard, n=127.</td>
+      <td class="rmetric">Typing prediz PHQ-9 e função cognitiva</td>
+      <td class="ruse">Peso de velocidade de digitação no modelo Triagem de depressão.</td>
+    </tr>
+    <tr>
+      <td class="rcode">NATH20</td>
+      <td class="rcite">Nath, R.K. et al. "Deep learning with wearable based heart rate variability for prediction of mental and general health." <em>Journal of Biomedical Informatics</em>, 2020. ScienceDirect. n=652.</td>
+      <td class="rmetric">83% acurácia (HRV 5min)</td>
+      <td class="ruse">Peso e performance de HRV no modelo Triagem de ansiedade.</td>
+    </tr>
+    <tr>
+      <td class="rcode">TOMASI24</td>
+      <td class="rcite">Tomasi, J. et al. "Investigating the association of anxiety disorders with heart rate variability measured using a wearable device." <em>Psychophysiology</em>, 351:569–578, 2024. CAMH, n=240.</td>
+      <td class="rmetric">HRV reduzida em TAG vs controles</td>
+      <td class="ruse">Valida HRV como biomarcador de ansiedade em contexto real-world.</td>
+    </tr>
+    <tr>
+      <td class="rcode">JACOBSON21</td>
+      <td class="rcite">Jacobson, N.C., Summers, B., Wilhelm, S. "Digital biomarkers of social anxiety severity: Digital phenotyping using passive smartphone sensors." <em>JMIR</em>, 22:e16875, 2020. n=265.</td>
+      <td class="rmetric">Sensibilidade 84% / Especificidade 53%</td>
+      <td class="ruse">Performance reportada no modelo Triagem de ansiedade. Caveat de especificidade.</td>
+    </tr>
+    <tr>
+      <td class="rcode">NOUR24</td>
+      <td class="rcite">Nour, M.M. et al. "Accurately predicting mood episodes in mood disorder patients using wearable sleep and circadian rhythm features." <em>npj Digital Medicine</em>, Nov. 2024. n=168, 587 dias.</td>
+      <td class="rmetric">AUC: dep 0,80 · mania 0,98 · hipomania 0,95</td>
+      <td class="ruse">Pesos e performance do modelo Risco de episódio de humor.</td>
+    </tr>
+    <tr>
+      <td class="rcode">PMC10753</td>
+      <td class="rcite">Melli, G. et al. "Digital Phenotyping for Monitoring Mental Disorders: Systematic Review." <em>JMIR</em>, 2023. PMC10753422.</td>
+      <td class="rmetric">Revisão sistemática de mobilidade e humor</td>
+      <td class="ruse">Fundamenta o uso de Bluetooth/mobilidade no modelo Risco de episódio de humor.</td>
+    </tr>
+    <tr>
+      <td class="rcode">GBD19</td>
+      <td class="rcite">GBD 2019 Diseases and Injuries Collaborators. "Global burden of 369 diseases and injuries." <em>Lancet</em>, 396(10258):1204–1222, 2020.</td>
+      <td class="rmetric">AUC=0,78 para DALY multi-fator</td>
+      <td class="ruse">Performance do modelo N2 Saúde física integrada.</td>
+    </tr>
+    <tr>
+      <td class="rcode">SALESFORCE22</td>
+      <td class="rcite">Salesforce Research. <em>State of the Connected Customer, 5th Edition.</em> 2022. salesforce.com/research</td>
+      <td class="rmetric">−38% erro de segmentação</td>
+      <td class="ruse">Performance do modelo N3 Perfil 360°.</td>
+    </tr>
+    <tr>
+      <td class="rcode">FEBRABAN23</td>
+      <td class="rcite">FEBRABAN. <em>Pesquisa FEBRABAN de Tecnologia Bancária 2023.</em> São Paulo: FEBRABAN, 2023. febraban.org.br</td>
+      <td class="rmetric">AUC=0,88 (portfólio)</td>
+      <td class="ruse">Performance do modelo N3 Risco sistêmico de crédito.</td>
+    </tr>
+
+    </tbody>
+  </table>
+</div>
+
+</div><!-- /wrap -->
+
+<!-- FOOTER -->
+<div class="footer">
+  <div class="footer-inner">
+    <div class="footer-note">Engine de Inferência Estatística · Documentação v9 · Base científica verificada até agosto de 2025</div>
+    <div class="footer-note">Os pesos refletem importância relativa reportada na literatura — não coeficientes de um modelo treinado em dados proprietários. Nunca usar para decisões individuais sem calibração e validação local.</div>
+  </div>
+</div>
+
+</body>
+</html>

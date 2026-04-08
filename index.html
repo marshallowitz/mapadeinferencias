@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Engine de Inferência Estatística</title>
+<meta name="description" content="Recebe o schema de dados disponível e calcula quais inferências estatísticas são viáveis — com cobertura ponderada pelos pesos da literatura científica original.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;0,8..60,600;1,8..60,300;1,8..60,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0f0e0c;
+  --paper:#f8f6f0;
+  --rule:#d8d4c8;
+  --accent:#c8401a;
+  --accent2:#1a5fc8;
+  --muted:#8a8680;
+  --n1:#1a5fc8;--n2:#6b3fb5;--n3:#b54000;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Source Serif 4',Georgia,serif;background:var(--paper);color:var(--ink);font-size:16px;line-height:1.7}
+
+/* ── NAV ── */
+nav{
+  position:sticky;top:0;z-index:100;
+  background:var(--ink);border-bottom:1px solid #2a2a28;
+  padding:0 2rem;
+}
+.nav-inner{max-width:1100px;margin:0 auto;display:flex;align-items:center;gap:0;height:52px}
+.nav-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:14px;color:var(--paper);letter-spacing:-.01em;margin-right:auto;text-decoration:none;white-space:nowrap}
+.nav-logo span{color:var(--accent)}
+.nav-links{display:flex;gap:0}
+.nav-links a{
+  font-family:'Syne',sans-serif;font-size:12px;font-weight:600;letter-spacing:.06em;
+  text-transform:uppercase;color:#aaa;text-decoration:none;
+  padding:0 1.2rem;height:52px;display:flex;align-items:center;
+  border-left:1px solid #2a2a28;transition:color .15s,background .15s
+}
+.nav-links a:hover{color:var(--paper);background:#1a1a18}
+.nav-links a.active{color:var(--paper)}
+.nav-cta{
+  font-family:'Syne',sans-serif;font-size:12px;font-weight:700;letter-spacing:.06em;
+  text-transform:uppercase;color:var(--ink) !important;background:var(--paper) !important;
+  margin-left:1rem;border-left:none !important;padding:0 1.2rem !important;border-radius:0
+}
+.nav-cta:hover{background:#e8e4dc !important}
+
+/* ── HERO ── */
+.hero{
+  max-width:1100px;margin:0 auto;padding:6rem 2rem 5rem;
+  display:grid;grid-template-columns:1fr 420px;gap:5rem;align-items:center
+}
+@media(max-width:860px){.hero{grid-template-columns:1fr;gap:3rem;padding:4rem 2rem 3rem}}
+.hero-eyebrow{
+  font-family:'Syne',sans-serif;font-size:11px;font-weight:700;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--accent);margin-bottom:1.5rem;
+  display:flex;align-items:center;gap:.6rem
+}
+.hero-eyebrow::before{content:'';display:block;width:28px;height:2px;background:var(--accent)}
+.hero-h1{
+  font-family:'Syne',sans-serif;font-weight:800;
+  font-size:clamp(36px,5vw,60px);line-height:1.0;letter-spacing:-.03em;
+  margin-bottom:1.8rem;color:var(--ink)
+}
+.hero-h1 em{font-style:italic;font-family:'Source Serif 4',serif;font-weight:300;color:var(--accent)}
+.hero-sub{
+  font-size:17px;line-height:1.75;color:#444;max-width:520px;margin-bottom:2.5rem
+}
+.hero-sub strong{font-weight:600;color:var(--ink)}
+.hero-actions{display:flex;gap:1rem;flex-wrap:wrap}
+.btn{
+  font-family:'Syne',sans-serif;font-weight:700;font-size:13px;letter-spacing:.06em;
+  text-transform:uppercase;text-decoration:none;display:inline-flex;align-items:center;gap:.5rem;
+  padding:.85rem 1.8rem;border-radius:3px;transition:all .15s
+}
+.btn-primary{background:var(--ink);color:var(--paper)}
+.btn-primary:hover{background:#2a2a28}
+.btn-secondary{background:transparent;color:var(--ink);border:2px solid var(--ink)}
+.btn-secondary:hover{background:var(--ink);color:var(--paper)}
+.btn-arrow::after{content:'→';font-family:monospace;font-size:15px}
+
+/* Card de fórmula no hero */
+.hero-card{
+  background:#fff;border:2px solid var(--ink);border-radius:4px;
+  padding:2rem;position:relative
+}
+.hero-card-label{
+  font-family:'Syne',sans-serif;font-size:10px;font-weight:700;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--muted);margin-bottom:1.2rem
+}
+.hero-formula{
+  font-family:'Source Serif 4',serif;font-size:32px;font-weight:300;
+  color:var(--ink);display:flex;align-items:center;gap:.5rem;
+  justify-content:center;margin-bottom:1.5rem
+}
+.frac{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle}
+.frac-n{border-bottom:2px solid var(--ink);padding:.05rem .3rem;font-size:.8em}
+.frac-d{padding:.05rem .3rem;font-size:.8em}
+.hero-card-caption{font-size:12px;color:var(--muted);line-height:1.6;font-style:italic}
+.hero-card-caption strong{font-style:normal;color:var(--ink);font-weight:600}
+.hero-card-pills{display:flex;gap:.4rem;flex-wrap:wrap;margin-top:1.2rem}
+.pill{
+  font-family:'Syne',sans-serif;font-size:10px;font-weight:700;letter-spacing:.06em;
+  text-transform:uppercase;padding:3px 8px;border-radius:2px
+}
+.pill-n1{background:#ddeaff;color:var(--n1)}
+.pill-n2{background:#ede0ff;color:var(--n2)}
+.pill-n3{background:#ffe8d8;color:var(--n3)}
+
+/* ── DIVISOR ── */
+.divider{border:none;border-top:1px solid var(--rule);margin:0 2rem}
+
+/* ── STATS ── */
+.stats{max-width:1100px;margin:0 auto;padding:3.5rem 2rem;display:grid;grid-template-columns:repeat(4,1fr);gap:2rem}
+@media(max-width:700px){.stats{grid-template-columns:repeat(2,1fr)}}
+.stat-n{font-family:'Syne',sans-serif;font-weight:800;font-size:42px;color:var(--ink);line-height:1;letter-spacing:-.02em}
+.stat-n span{color:var(--accent);font-size:.6em}
+.stat-l{font-size:13px;color:var(--muted);margin-top:.3rem;line-height:1.4}
+
+/* ── PORQUE ISSO IMPORTA ── */
+.why{background:var(--ink);padding:5rem 2rem}
+.why-inner{max-width:1100px;margin:0 auto}
+.why-head{
+  font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(24px,3.5vw,40px);
+  color:var(--paper);letter-spacing:-.02em;margin-bottom:1rem
+}
+.why-sub{font-size:15px;color:#aaa;max-width:520px;margin-bottom:3.5rem;line-height:1.7}
+.why-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2rem}
+@media(max-width:700px){.why-grid{grid-template-columns:1fr}}
+.why-card{border-top:2px solid #3a3a38;padding-top:1.5rem}
+.why-card-n{font-family:'Syne',sans-serif;font-weight:800;font-size:40px;color:#3a3a38;line-height:1;margin-bottom:.8rem}
+.why-card h3{font-family:'Syne',sans-serif;font-weight:700;font-size:15px;color:var(--paper);margin-bottom:.6rem}
+.why-card p{font-size:13px;color:#888;line-height:1.7}
+
+/* ── COMO FUNCIONA ── */
+.how{max-width:1100px;margin:0 auto;padding:5rem 2rem}
+.how-head{font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(24px,3.5vw,40px);letter-spacing:-.02em;margin-bottom:.8rem}
+.how-sub{font-size:15px;color:var(--muted);max-width:520px;margin-bottom:3.5rem;line-height:1.7}
+.how-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:2.5rem}
+@media(max-width:700px){.how-steps{grid-template-columns:1fr}}
+.step{position:relative}
+.step::after{
+  content:'';position:absolute;top:22px;left:calc(100% + 0px);
+  width:calc(100% - 0px);height:1px;background:var(--rule);
+  display:none
+}
+.step-num{
+  font-family:'Syne',sans-serif;font-weight:800;font-size:13px;
+  color:var(--accent);letter-spacing:.08em;margin-bottom:1rem;
+  display:flex;align-items:center;gap:.6rem
+}
+.step-num::before{
+  content:'';display:block;width:36px;height:36px;border-radius:50%;
+  background:var(--ink);color:var(--paper);
+  font-size:14px;text-align:center;line-height:36px;
+  flex-shrink:0
+}
+.step:nth-child(1) .step-num::before{content:'1'}
+.step:nth-child(2) .step-num::before{content:'2'}
+.step:nth-child(3) .step-num::before{content:'3'}
+.step h3{font-family:'Syne',sans-serif;font-weight:700;font-size:16px;margin-bottom:.6rem}
+.step p{font-size:14px;color:#555;line-height:1.7}
+
+/* ── CONTRASTE ── */
+.contrast{background:#f0f0ea;padding:5rem 2rem}
+.contrast-inner{max-width:1100px;margin:0 auto}
+.contrast-head{font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(22px,3vw,36px);letter-spacing:-.02em;margin-bottom:.8rem}
+.contrast-sub{font-size:15px;color:var(--muted);margin-bottom:3rem;line-height:1.7;max-width:520px}
+.contrast-cols{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem}
+@media(max-width:640px){.contrast-cols{grid-template-columns:1fr}}
+.contrast-col{background:#fff;border:1px solid var(--rule);border-radius:4px;padding:1.8rem}
+.contrast-col.bad{border-top:3px solid #c84040}
+.contrast-col.good{border-top:3px solid #1a6040}
+.contrast-col h3{font-family:'Syne',sans-serif;font-weight:700;font-size:13px;letter-spacing:.06em;text-transform:uppercase;margin-bottom:1.2rem}
+.contrast-col.bad h3{color:#c84040}
+.contrast-col.good h3{color:#1a6040}
+.contrast-item{display:flex;gap:.8rem;font-size:13px;color:#555;margin-bottom:.7rem;line-height:1.5}
+.contrast-item::before{font-size:14px;flex-shrink:0;margin-top:1px}
+.contrast-col.bad .contrast-item::before{content:'✗';color:#c84040}
+.contrast-col.good .contrast-item::before{content:'✓';color:#1a6040}
+
+/* ── CTA FINAL ── */
+.cta-section{max-width:1100px;margin:0 auto;padding:5rem 2rem;display:grid;grid-template-columns:1fr 1fr;gap:2rem;align-items:center}
+@media(max-width:640px){.cta-section{grid-template-columns:1fr}}
+.cta-text h2{font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(24px,3.5vw,40px);letter-spacing:-.02em;margin-bottom:.8rem}
+.cta-text p{font-size:15px;color:var(--muted);line-height:1.7}
+.cta-buttons{display:flex;flex-direction:column;gap:1rem;align-items:flex-start}
+@media(min-width:641px){.cta-buttons{align-items:flex-end}}
+
+/* ── FOOTER ── */
+footer{background:var(--ink);padding:2.5rem 2rem}
+.footer-inner{max-width:1100px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem}
+.footer-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:13px;color:var(--paper)}
+.footer-logo span{color:var(--accent)}
+.footer-links{display:flex;gap:1.5rem}
+.footer-links a{font-family:'Syne',sans-serif;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#666;text-decoration:none}
+.footer-links a:hover{color:#aaa}
+.footer-copy{font-size:11px;color:#444;font-family:'Syne',sans-serif;letter-spacing:.04em;width:100%;margin-top:.5rem}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-inner">
+    <a class="nav-logo" href="index.html">Engine de <span>Inferência</span></a>
+    <div class="nav-links">
+      <a href="index.html" class="active">Início</a>
+      <a href="calculadora.html">Calculadora</a>
+      <a href="docs.html">Documentação</a>
+      <a href="calculadora.html" class="nav-cta btn-arrow">Abrir ferramenta</a>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section>
+  <div class="hero">
+    <div>
+      <div class="hero-eyebrow">Engine de Inferência Estatística</div>
+      <h1 class="hero-h1">Inferências<br>com base<br><em>científica real</em></h1>
+      <p class="hero-sub">Recebe o schema de dados disponível e calcula quais inferências são viáveis. Cada resultado mapeia para um <strong>estudo publicado e revisado por pares</strong> — sem pseudo-confiança, sem pesos inventados.</p>
+      <div class="hero-actions">
+        <a href="calculadora.html" class="btn btn-primary btn-arrow">Abrir calculadora</a>
+        <a href="docs.html" class="btn btn-secondary">Ver documentação</a>
+      </div>
+    </div>
+    <div>
+      <div class="hero-card">
+        <div class="hero-card-label">Fórmula central</div>
+        <div class="hero-formula">
+          C<sub>m</sub> = <span class="frac"><span class="frac-n">Σ<sub>i ∈ S</sub> w<sub>i</sub></span><span class="frac-d">Σ<sub>i ∈ V<sub>m</sub></sub> w<sub>i</sub></span></span>
+        </div>
+        <p class="hero-card-caption">
+          <strong>C<sub>m</sub></strong> é a cobertura do modelo — a fração das variáveis do estudo original que você possui, ponderada pelos pesos da literatura. Não é uma probabilidade. Não é uma confiança. É uma declaração honesta sobre o que você tem.
+        </p>
+        <div class="hero-card-pills">
+          <span class="pill pill-n1">N1 — Primário</span>
+          <span class="pill pill-n2">N2 — Composto</span>
+          <span class="pill pill-n3">N3 — Meta</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- STATS -->
+<section>
+  <div class="stats">
+    <div>
+      <div class="stat-n">70</div>
+      <div class="stat-l">tipos de dado em 9 categorias</div>
+    </div>
+    <div>
+      <div class="stat-n">14</div>
+      <div class="stat-l">modelos N1 com base publicada</div>
+    </div>
+    <div>
+      <div class="stat-n">23</div>
+      <div class="stat-l">modelos N2 e N3 compostos</div>
+    </div>
+    <div>
+      <div class="stat-n">30<span>+</span></div>
+      <div class="stat-l">referências científicas documentadas</div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- POR QUE ISSO IMPORTA -->
+<section class="why">
+  <div class="why-inner">
+    <h2 class="why-head">Por que isso importa</h2>
+    <p class="why-sub">A maioria dos sistemas de pontuação e inferência operam com pesos arbitrários apresentados como verdades científicas. Este engine faz o oposto.</p>
+    <div class="why-grid">
+      <div class="why-card">
+        <div class="why-card-n">01</div>
+        <h3>Honestidade epistemológica</h3>
+        <p>O percentual exibido é a cobertura das variáveis do estudo original — não uma estimativa de precisão fabricada. Se faltam dados críticos, o sistema diz isso claramente.</p>
+      </div>
+      <div class="why-card">
+        <div class="why-card-n">02</div>
+        <h3>Rastreabilidade científica</h3>
+        <p>Cada peso vem de uma fonte: coeficientes β do Cox (Framingham), pontos de score (FINDRISC), feature importance SHAP (RFM), GINI incremental (credit scoring).</p>
+      </div>
+      <div class="why-card">
+        <div class="why-card-n">03</div>
+        <h3>Caveats explícitos</h3>
+        <p>Limitações de população, restrições de aplicação e avisos éticos são parte do output — não notas de rodapé. Fenotipagem digital exige consentimento: o sistema exige que você saiba disso.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- COMO FUNCIONA -->
+<section>
+  <div class="how">
+    <h2 class="how-head">Como funciona</h2>
+    <p class="how-sub">Três passos, zero configuração, resultados imediatos.</p>
+    <div class="how-steps">
+      <div class="step">
+        <div class="step-num">Selecione os dados</div>
+        <h3>Marque o que você tem</h3>
+        <p>Escolha os tipos de dado disponíveis no seu schema — de CEP e renda até HRV de wearable e ritmo circadiano via GPS. 70 variáveis em 9 categorias.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">Calcule</div>
+        <h3>Veja as inferências viáveis</h3>
+        <p>O engine calcula automaticamente quais modelos são aplicáveis, a cobertura de cada um, quais variáveis estão presentes e ausentes, e o que falta para aumentar a cobertura.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">Interprete</div>
+        <h3>Com base científica</h3>
+        <p>Cada resultado mostra o estudo de referência, a métrica de desempenho reportada, os pesos de cada variável e os caveats relevantes. N1, N2 e N3 em ordem crescente de composição.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTRASTE -->
+<section class="contrast">
+  <div class="contrast-inner">
+    <h2 class="contrast-head">O que mudamos</h2>
+    <p class="contrast-sub">A diferença central em relação a outros sistemas de pontuação e scoring automatizado.</p>
+    <div class="contrast-cols">
+      <div class="contrast-col bad">
+        <h3>Abordagem convencional</h3>
+        <div class="contrast-item">Pesos definidos internamente, sem justificativa científica publicada</div>
+        <div class="contrast-item">Output expressa "confiança" — implica precisão do resultado</div>
+        <div class="contrast-item">Qualquer combinação de dados gera um número, mesmo que sem relação</div>
+        <div class="contrast-item">Limitações e caveats omitidos ou em letras miúdas</div>
+        <div class="contrast-item">Fenotipagem digital misturada com dados convencionais sem distinção ética</div>
+      </div>
+      <div class="contrast-col good">
+        <h3>Este engine</h3>
+        <div class="contrast-item">Pesos derivados de coeficientes β, pontos de score ou feature importance da literatura original</div>
+        <div class="contrast-item">Output expressa "cobertura" — declara o que você tem, não o que o sistema sabe</div>
+        <div class="contrast-item">Hints só aparecem para dados do mesmo modelo que você já começou — sem sugestões sem relação</div>
+        <div class="contrast-item">Caveats são parte do card de resultado, visíveis por padrão</div>
+        <div class="contrast-item">Fenotipagem digital ativa aviso explícito de LGPD e triagem ≠ diagnóstico</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA FINAL -->
+<section>
+  <div class="cta-section">
+    <div class="cta-text">
+      <h2>Pronto para explorar?</h2>
+      <p>A calculadora está disponível agora, sem cadastro. A documentação cobre cada dado, cada modelo e cada referência científica que sustenta o engine.</p>
+    </div>
+    <div class="cta-buttons">
+      <a href="calculadora.html" class="btn btn-primary btn-arrow">Abrir calculadora</a>
+      <a href="docs.html" class="btn btn-secondary">Ler documentação</a>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-logo">Engine de <span>Inferência</span> Estatística</div>
+    <div class="footer-links">
+      <a href="index.html">Início</a>
+      <a href="calculadora.html">Calculadora</a>
+      <a href="docs.html">Documentação</a>
+    </div>
+    <div class="footer-copy">Base científica verificada até agosto de 2025 · Os pesos refletem importância relativa reportada na literatura — não coeficientes de um modelo treinado em dados proprietários</div>
+  </div>
+</footer>
+
+</body>
+</html>
