@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Documentação de Referência — Engine de Inferência Estatística</title>
+<title>Documentação de Referência — Engine de Mapeamento de Inferência Estatística</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Source+Serif+4:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap" rel="stylesheet">
 <style>
@@ -359,7 +359,7 @@ body{
 <div class="section" id="sec-formulacao">
   <div class="section-head">
     <h2>§0 Formulação matemática</h2>
-    <span class="sh-note">Cobertura ponderada — a inovação central do engine</span>
+    <span class="sh-note">Cobertura ponderada: a inovação central do engine</span>
   </div>
 
   <!-- BLOCO PRINCIPAL: A FÓRMULA -->
@@ -372,7 +372,7 @@ body{
       <div class="legend-row"><span class="legend-sym">C<sub>m</sub></span><span class="legend-def">cobertura do modelo <em>m</em>, no intervalo [0, 1]</span></div>
       <div class="legend-row"><span class="legend-sym">V<sub>m</sub></span><span class="legend-def">conjunto completo de variáveis do modelo <em>m</em> no estudo de referência</span></div>
       <div class="legend-row"><span class="legend-sym">S</span><span class="legend-def">subconjunto de variáveis de V<sub>m</sub> disponíveis no schema do usuário (S ⊆ V<sub>m</sub>)</span></div>
-      <div class="legend-row"><span class="legend-sym">w<sub>i</sub></span><span class="legend-def">peso da variável <em>i</em>, derivado da literatura original do modelo — não arbitrário</span></div>
+      <div class="legend-row"><span class="legend-sym">w<sub>i</sub></span><span class="legend-def">peso da variável <em>i</em>, derivado da literatura original do modelo, não arbitrário</span></div>
     </div>
   </div>
 
@@ -562,7 +562,7 @@ body{
       <td class="name">CEP<br><span class="cat-tag cat-geo">Geo</span></td>
       <td class="desc">Código Postal — proxy geoeconômico do endereço</td>
       <td class="note">NSE geográfico, Classe social, Vulnerabilidade</td>
-      <td class="ref">Correlação r=0,87 com renda por setor censitário. Soares et al. (UNICAMP/SciELO 2005). CEP menos homogêneo que setor — perda tolerável de precisão.</td>
+      <td class="ref">Correlação r=0,87 com renda por setor censitário. Soares et al. (UNICAMP/SciELO 2005). CEP menos homogêneo que setor, perda tolerável de precisão.</td>
     </tr>
     <tr>
       <td class="name">Cidade<br><span class="cat-tag cat-geo">Geo</span></td>
@@ -613,7 +613,7 @@ body{
       <td class="name">Idade<br><span class="cat-tag cat-demo">Demo</span></td>
       <td class="desc">Idade exata em anos</td>
       <td class="note">Risco CV, Risco DM2, Geração</td>
-      <td class="ref">Framingham: β=0,72 (H) / 0,69 (M) no Cox — dominante em >55 anos. FINDRISC: 0–4 pts por faixa. D'Agostino et al. 2008 (Circulation 118:24).</td>
+      <td class="ref">Framingham: β=0,72 (H) / 0,69 (M) no Cox, dominante em >55 anos. FINDRISC: 0–4 pts por faixa. D'Agostino et al. 2008 (Circulation 118:24).</td>
     </tr>
     <tr>
       <td class="name">Sexo declarado<br><span class="cat-tag cat-demo">Demo</span></td>
@@ -733,7 +733,7 @@ body{
       <td class="name">Recência de uso<br><span class="cat-tag cat-beh">Comp</span></td>
       <td class="desc">Dias desde o último acesso ou compra</td>
       <td class="note">Propensão a churn, LTV</td>
-      <td class="ref">"Greatest variability in CLV on recency dimension" — Fader & Hardie 2005. Maior feature importance para churn em XGBoost (Mena et al. Annals OR 2024).</td>
+      <td class="ref">"Greatest variability in CLV on recency dimension" Fader & Hardie 2005. Maior feature importance para churn em XGBoost (Mena et al. Annals OR 2024).</td>
     </tr>
     <tr>
       <td class="name">Data última compra<br><span class="cat-tag cat-beh">Comp</span></td>
@@ -781,7 +781,7 @@ body{
       <td class="name">Abertura de e-mails<br><span class="cat-tag cat-beh">Comp</span></td>
       <td class="desc">Taxa de abertura de e-mails enviados</td>
       <td class="note">Engajamento (auxiliar)</td>
-      <td class="ref">Open rate &lt;10% nos últimos 30 dias = sinal de "silent churner" — cliente que para de interagir antes de cancelar (Mailchimp 2023 + Mena 2024).</td>
+      <td class="ref">Open rate &lt;10% nos últimos 30 dias = sinal de "silent churner", cliente que para de interagir antes de cancelar (Mailchimp 2023 + Mena 2024).</td>
     </tr>
     <tr>
       <td class="name">Horário de acesso<br><span class="cat-tag cat-beh">Comp</span></td>
@@ -793,7 +793,7 @@ body{
       <td class="name">Categorias de compra<br><span class="cat-tag cat-beh">Comp</span></td>
       <td class="desc">Segmentos de produtos adquiridos</td>
       <td class="note">Gênero inferido (auxiliar fraco)</td>
-      <td class="ref">r=0,44 com gênero — sinal fraco. Usado apenas como variável auxiliar quando sexo declarado é indisponível (Kotler & Keller 2022).</td>
+      <td class="ref">r=0,44 com gênero, sinal fraco. Usado apenas como variável auxiliar quando sexo declarado é indisponível (Kotler & Keller 2022).</td>
     </tr>
 
     <!-- SAÚDE -->
