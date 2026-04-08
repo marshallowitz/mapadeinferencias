@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Grafo de Inferência — Engine de Inferência Estatística</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;0,8..60,600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0f0e0c; --paper:#f8f6f0; --rule:#d8d4c8;
+  --accent:#1a5fc8; --muted:#8a8680;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Source Serif 4',Georgia,serif;background:var(--paper);color:var(--ink);font-size:15px;line-height:1.7}
+nav{position:sticky;top:0;z-index:100;background:var(--ink);border-bottom:1px solid #2a2a28;padding:0 2rem}
+.nav-inner{max-width:1400px;margin:0 auto;display:flex;align-items:center;height:52px}
+.nav-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:14px;color:var(--paper);letter-spacing:-.01em;margin-right:auto;text-decoration:none}
+.nav-logo span{color:var(--accent)}
+.nav-links{display:flex}
+.nav-links a{font-family:'Syne',sans-serif;font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#aaa;text-decoration:none;padding:0 1.2rem;height:52px;display:flex;align-items:center;border-left:1px solid #2a2a28;transition:color .15s,background .15s}
+.nav-links a:hover{color:var(--paper);background:#1a1a18}
+.nav-links a.active{color:var(--paper)}
+.page-head{max-width:1400px;margin:0 auto;padding:3rem 2rem 1rem}
+.page-head h1{font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(22px,3vw,38px);letter-spacing:-.02em;margin-bottom:.4rem}
+.page-head p{font-size:14px;color:var(--muted);max-width:640px;line-height:1.7}
+.controls-wrap{max-width:1400px;margin:0 auto;padding:.8rem 2rem;display:flex;gap:.8rem;flex-wrap:wrap;align-items:center}
+.ctrl-btn{font-family:'Syne',sans-serif;font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:4px 12px;border:1px solid var(--rule);border-radius:4px;background:#fff;color:var(--muted);cursor:pointer;transition:all .12s}
+.ctrl-btn:hover{border-color:#aaa;color:var(--ink)}
+.ctrl-btn.on{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.legend{display:flex;gap:1.2rem;flex-wrap:wrap;align-items:center;margin-left:auto}
+.leg{display:flex;align-items:center;gap:.4rem;font-family:'Syne',sans-serif;font-size:10px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
+.leg-dot{width:12px;height:12px;border-radius:3px;flex-shrink:0}
+.graph-outer{max-width:1400px;margin:0 auto 2rem;padding:0 2rem}
+#gwrap{border:1px solid var(--rule);border-radius:6px;background:#fff;overflow:auto}
+#tooltip{position:fixed;z-index:999;background:var(--ink);color:var(--paper);font-family:'Syne',sans-serif;font-size:11px;line-height:1.5;padding:8px 12px;border-radius:4px;pointer-events:none;max-width:260px;display:none}
+#tooltip b{font-size:12px;display:block;margin-bottom:2px}
+#tooltip .tref{opacity:.65;font-size:10px}
+#tooltip .tperf{color:#7adfc0;font-size:10px;margin-top:2px}
+.hint{font-family:'Syne',sans-serif;font-size:11px;color:var(--muted);font-style:italic;font-weight:400;letter-spacing:0;text-transform:none}
+.gnode{cursor:pointer}
+footer{background:var(--ink);padding:2rem}
+.fi{max-width:1400px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem}
+.fl{font-family:'Syne',sans-serif;font-weight:800;font-size:13px;color:var(--paper)}
+.fl span{color:var(--accent)}
+.flinks{display:flex;gap:1.5rem}
+.flinks a{font-family:'Syne',sans-serif;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#666;text-decoration:none}
+.flinks a:hover{color:#aaa}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a class="nav-logo" href="index.html">Engine de <span>Inferência</span></a>
+    <div class="nav-links">
+      <a href="index.html">Início</a>
+      <a href="calculadora.html">Calculadora</a>
+      <a href="grafo.html" class="active">Grafo</a>
+      <a href="docs.html">Documentação</a>
+      <a href="about.html">About</a>
+    </div>
+  </div>
+</nav>
+
+<div class="page-head">
+  <h1>Grafo completo de inferência</h1>
+  <p>15 modelos N1, 7 modelos N2, 2 modelos N3. Clique em qualquer nó para ver a cadeia completa de dados que o alimenta e as inferências que dele dependem.</p>
+</div>
+
+<div class="controls-wrap">
+  <button class="ctrl-btn on" onclick="setFilter('all',this)">Todos</button>
+  <button class="ctrl-btn" onclick="setFilter('social',this)">Social</button>
+  <button class="ctrl-btn" onclick="setFilter('saude',this)">Saúde</button>
+  <button class="ctrl-btn" onclick="setFilter('marketing',this)">Marketing</button>
+  <button class="ctrl-btn" onclick="setFilter('financeiro',this)">Financeiro</button>
+  <button class="ctrl-btn" onclick="setFilter('saude_mental',this)">Saúde mental</button>
+  <div class="legend">
+    <div class="leg"><div class="leg-dot" style="background:#e8f0fe;border:1.5px solid #1a5fc8"></div>Dado</div>
+    <div class="leg"><div class="leg-dot" style="background:#ddeaff;border:1.5px solid #1a5fc8"></div>N1</div>
+    <div class="leg"><div class="leg-dot" style="background:#ede0ff;border:1.5px solid #6b3fb5"></div>N2</div>
+    <div class="leg"><div class="leg-dot" style="background:#ffe8d8;border:1.5px solid #b54000"></div>N3</div>
+    <div class="leg"><div class="leg-dot" style="background:#e1f5ee;border:1.5px solid #0f6e56"></div>Saúde mental</div>
+    <span class="hint">· Clique para destacar cadeia</span>
+  </div>
+</div>
+
+<div class="graph-outer">
+  <div id="gwrap"></div>
+</div>
+
+<div id="tooltip"><b id="tn"></b><div class="tref" id="tr"></div><div class="tperf" id="tp"></div></div>
+
+<footer>
+  <div class="fi">
+    <div class="fl">Engine de <span>Inferência</span> Estatística</div>
+    <div class="flinks">
+      <a href="index.html">Início</a>
+      <a href="calculadora.html">Calculadora</a>
+      <a href="docs.html">Documentação</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+const N=[
+  // DADOS BRUTOS col=0
+  {id:'cep',c:0,r:0, t:'data',d:'social',  l:'CEP'},
+  {id:'idh',c:0,r:1, t:'data',d:'social',  l:'IDH município'},
+  {id:'vulner_area',c:0,r:2,t:'data',d:'social',l:'IVS da área'},
+  {id:'bairro',c:0,r:3,t:'data',d:'social',l:'Bairro'},
+  {id:'zona',c:0,r:4, t:'data',d:'social',  l:'Zona urbana/rural'},
+  {id:'renda',c:0,r:5,t:'data',d:'social',  l:'Renda declarada'},
+  {id:'renda_fam',c:0,r:6,t:'data',d:'social',l:'Renda familiar'},
+  {id:'imovel',c:0,r:7,t:'data',d:'social', l:'Tipo de imóvel'},
+  {id:'veiculo',c:0,r:8,t:'data',d:'social',l:'Possui veículo'},
+  {id:'eletrodomesticos',c:0,r:9,t:'data',d:'social',l:'Eletrodomésticos'},
+  {id:'computador',c:0,r:10,t:'data',d:'social',l:'Possui computador'},
+  {id:'escolaridade',c:0,r:11,t:'data',d:'social',l:'Escolaridade'},
+  {id:'ano_nasc',c:0,r:12,t:'data',d:'social',l:'Ano de nascimento'},
+  {id:'idade',c:0,r:13,t:'data',d:'social', l:'Idade'},
+  {id:'sexo',c:0,r:14,t:'data',d:'social',  l:'Sexo declarado'},
+  {id:'nome',c:0,r:15,t:'data',d:'social',  l:'Primeiro nome'},
+  {id:'plataformas',c:0,r:16,t:'data',d:'social',l:'Plataformas digitais'},
+  {id:'streaming',c:0,r:17,t:'data',d:'social',l:'Streaming'},
+  {id:'categorias',c:0,r:18,t:'data',d:'social',l:'Categorias compra'},
+  // saude
+  {id:'pressao',c:0,r:20,t:'data',d:'saude',l:'Pressão arterial'},
+  {id:'colesterol',c:0,r:21,t:'data',d:'saude',l:'Colesterol HDL/LDL'},
+  {id:'tabagismo',c:0,r:22,t:'data',d:'saude',l:'Tabagismo'},
+  {id:'diabetes',c:0,r:23,t:'data',d:'saude',l:'Diabetes diagnos.'},
+  {id:'medic_antihiper',c:0,r:24,t:'data',d:'saude',l:'Anti-hipertensivo'},
+  {id:'hist_glicemia',c:0,r:25,t:'data',d:'saude',l:'Hist. glicemia alta'},
+  {id:'hist_familiar_dm',c:0,r:26,t:'data',d:'saude',l:'Hist. familiar DM'},
+  {id:'imc',c:0,r:27,t:'data',d:'saude',l:'IMC'},
+  {id:'atv_fisica',c:0,r:28,t:'data',d:'saude',l:'Atividade física'},
+  // marketing
+  {id:'recencia',c:0,r:30,t:'data',d:'marketing',l:'Recência'},
+  {id:'freq_comp',c:0,r:31,t:'data',d:'marketing',l:'Frequência compras'},
+  {id:'ticket',c:0,r:32,t:'data',d:'marketing',l:'Ticket médio'},
+  {id:'nps',c:0,r:33,t:'data',d:'marketing',l:'NPS / Satisfação'},
+  {id:'suporte',c:0,r:34,t:'data',d:'marketing',l:'Chamados suporte'},
+  {id:'plano',c:0,r:35,t:'data',d:'marketing',l:'Tipo de plano'},
+  {id:'ult_compra',c:0,r:36,t:'data',d:'marketing',l:'Data última compra'},
+  {id:'pos_grad',c:0,r:37,t:'data',d:'marketing',l:'Pós-graduação'},
+  {id:'investimentos',c:0,r:38,t:'data',d:'marketing',l:'Possui investimentos'},
+  {id:'patrimonio',c:0,r:39,t:'data',d:'marketing',l:'Patrimônio'},
+  // financeiro
+  {id:'score_cred',c:0,r:41,t:'data',d:'financeiro',l:'Score de crédito'},
+  {id:'inadimpl',c:0,r:42,t:'data',d:'financeiro',l:'Hist. inadimplência'},
+  {id:'uso_limite',c:0,r:43,t:'data',d:'financeiro',l:'% uso do limite'},
+  {id:'dividas',c:0,r:44,t:'data',d:'financeiro',l:'Dívidas ativas'},
+  {id:'parcelas',c:0,r:45,t:'data',d:'financeiro',l:'Parcelas ativas'},
+  {id:'hist_cred',c:0,r:46,t:'data',d:'financeiro',l:'Histórico crédito'},
+  // fenotipagem
+  {id:'gps_distancia',c:0,r:48,t:'data',d:'saude_mental',l:'Distância GPS/dia'},
+  {id:'gps_homestay',c:0,r:49,t:'data',d:'saude_mental',l:'Tempo em casa %'},
+  {id:'gps_entropia',c:0,r:50,t:'data',d:'saude_mental',l:'Entropia GPS'},
+  {id:'ritmo_circadiano',c:0,r:51,t:'data',d:'saude_mental',l:'Ritmo circadiano'},
+  {id:'velocidade_digitacao',c:0,r:52,t:'data',d:'saude_mental',l:'Vel. digitação'},
+  {id:'desbloqueios',c:0,r:53,t:'data',d:'saude_mental',l:'Desbloqueios/dia'},
+  {id:'hrv',c:0,r:54,t:'data',d:'saude_mental',l:'HRV (wearable)'},
+  {id:'passos_dia',c:0,r:55,t:'data',d:'saude_mental',l:'Passos/dia'},
+  {id:'uso_noturno',c:0,r:56,t:'data',d:'saude_mental',l:'Uso noturno'},
+  {id:'duracao_sono_wearable',c:0,r:57,t:'data',d:'saude_mental',l:'Sono wearable'},
+  {id:'contatos_bluetooth',c:0,r:58,t:'data',d:'saude_mental',l:'Bluetooth/dia'},
+
+  // N1 col=1
+  {id:'ses',c:1,r:6, t:'n1',d:'social',    l:'Classe social',      ref:'ABEP 2022',              perf:'Acurácia ~88%'},
+  {id:'ses_geo',c:1,r:2,t:'n1',d:'social', l:'NSE geográfico',     ref:'GeoSES / IVS-IPEA 2022', perf:'r>0,85 com IDH-M'},
+  {id:'vulnerabilidade',c:1,r:11,t:'n1',d:'social',l:'Vulnerabilidade social',ref:'IVS-IPEA 2022',perf:'r=0,82 mort. infantil'},
+  {id:'geracao',c:1,r:14,t:'n1',d:'social',l:'Geração demográfica', ref:'Pew Research 2019',       perf:'100% (ano nasc.) / 61% (proxies)'},
+  {id:'genero_inf',c:1,r:17,t:'n1',d:'social',l:'Gênero inferido',  ref:'Carvalho et al. SBC 2020',perf:'87–91% (nome)'},
+  {id:'cardio',c:1,r:22,t:'n1',d:'saude',  l:'Risco cardiovascular',ref:"Framingham / D'Agostino 2008",perf:'AUC=0,794'},
+  {id:'diabetes_r',c:1,r:26,t:'n1',d:'saude',l:'Risco diabetes T2',ref:'FINDRISC / Aschner 2023',  perf:'AUC=0,76'},
+  {id:'churn',c:1,r:31,t:'n1',d:'marketing',l:'Propensão a churn', ref:'Fader & Hardie 2005 · Mena 2024',perf:'AUC-ROC=0,85'},
+  {id:'ltv',c:1,r:35,t:'n1',d:'marketing', l:'Lifetime Value',     ref:'BG/NBD · Fader & Hardie 2005',perf:'MAPE=13,6%'},
+  {id:'prop_premium',c:1,r:39,t:'n1',d:'marketing',l:'Propensão premium',ref:'ANBIMA 2023 · McKinsey 2022',perf:'OR>8'},
+  {id:'credito',c:1,r:43,t:'n1',d:'financeiro',l:'Risco de crédito',ref:'Thomas 2002 · Bacen NT40/2022',perf:'GINI=0,55–0,75'},
+  {id:'inadimpl_i',c:1,r:46,t:'n1',d:'financeiro',l:'Inadimplência behav.',ref:'Siddiqi 2012 · Bacen EE80/2020',perf:'GINI~0,68'},
+  {id:'depressao_triagem',c:1,r:51,t:'n1',d:'saude_mental',l:'Triagem depressão',ref:'Saeb 2015 · Terhorst JMIR 2024',perf:'AUC 0,94–0,99'},
+  {id:'ansiedade_triagem',c:1,r:55,t:'n1',d:'saude_mental',l:'Triagem ansiedade',ref:'Nath 2020 · Tomasi 2024',perf:'83% acurácia'},
+  {id:'humor_episodio',c:1,r:58,t:'n1',d:'saude_mental',l:'Ep. de humor',ref:'Nour et al. npj 2024',perf:'AUC=0,80–0,98'},
+
+  // N2 col=2
+  {id:'seg_cli',c:2,r:12,t:'n2',d:'marketing',l:'Segmentação cliente',ref:'FICO Score 10 2021',perf:'GINI~0,72'},
+  {id:'fraude',c:2,r:22,t:'n2',d:'financeiro',l:'Risco de fraude',  ref:'Phua et al. SIGKDD 2010',perf:'AUC=0,92'},
+  {id:'upsell',c:2,r:31,t:'n2',d:'marketing', l:'Potencial upsell', ref:'Neslin et al. JMR 2006', perf:'Lift>3×'},
+  {id:'saude_integrada',c:2,r:23,t:'n2',d:'saude',l:'Saúde física integrada',ref:'GBD 2019 · Lancet',perf:'AUC=0,78 (DALY)'},
+  {id:'saude_mental_integrada',c:2,r:54,t:'n2',d:'saude_mental',l:'Saúde mental integrada',ref:'Biomarcadores digitais',perf:'AUC 0,85–0,94'},
+  {id:'incl_fin',c:2,r:40,t:'n2',d:'financeiro',l:'Inclusão financeira',ref:'IIF Bacen 2021',perf:'r=0,79 com IIF real'},
+  {id:'cli_premium',c:2,r:36,t:'n2',d:'marketing',l:'Cliente premium',ref:'McKinsey 2022 · ANBIMA 2023',perf:'GINI=0,65'},
+
+  // N3 col=3
+  {id:'perfil_360',c:3,r:28,t:'n3',d:'marketing',l:'Perfil 360°',  ref:'Customer 360 · Salesforce 2022',perf:'−38% erro segmentação'},
+  {id:'risco_sist',c:3,r:40,t:'n3',d:'financeiro',l:'Risco sistêmico',ref:'Bacen + FEBRABAN 2022',perf:'AUC=0,88'},
+];
+
+const E=[
+  // dados→ses
+  {f:'renda',t:'ses'},{f:'eletrodomesticos',t:'ses'},{f:'imovel',t:'ses'},
+  {f:'renda_fam',t:'ses'},{f:'veiculo',t:'ses'},{f:'escolaridade',t:'ses'},
+  {f:'computador',t:'ses'},{f:'cep',t:'ses'},
+  // dados→ses_geo
+  {f:'cep',t:'ses_geo'},{f:'idh',t:'ses_geo'},{f:'vulner_area',t:'ses_geo'},
+  {f:'bairro',t:'ses_geo'},{f:'zona',t:'ses_geo'},
+  // dados→vulnerabilidade
+  {f:'vulner_area',t:'vulnerabilidade'},{f:'idh',t:'vulnerabilidade'},
+  {f:'renda',t:'vulnerabilidade'},{f:'cep',t:'vulnerabilidade'},
+  {f:'renda_fam',t:'vulnerabilidade'},{f:'escolaridade',t:'vulnerabilidade'},
+  // dados→geracao
+  {f:'ano_nasc',t:'geracao'},{f:'idade',t:'geracao'},
+  {f:'plataformas',t:'geracao'},{f:'streaming',t:'geracao'},
+  // dados→genero_inf
+  {f:'sexo',t:'genero_inf'},{f:'nome',t:'genero_inf'},{f:'categorias',t:'genero_inf'},
+  // dados→cardio
+  {f:'pressao',t:'cardio'},{f:'colesterol',t:'cardio'},{f:'tabagismo',t:'cardio'},
+  {f:'diabetes',t:'cardio'},{f:'idade',t:'cardio'},{f:'medic_antihiper',t:'cardio'},
+  // dados→diabetes_r
+  {f:'hist_glicemia',t:'diabetes_r'},{f:'hist_familiar_dm',t:'diabetes_r'},
+  {f:'imc',t:'diabetes_r'},{f:'atv_fisica',t:'diabetes_r'},
+  {f:'medic_antihiper',t:'diabetes_r'},{f:'idade',t:'diabetes_r'},
+  // dados→churn
+  {f:'recencia',t:'churn'},{f:'freq_comp',t:'churn'},{f:'nps',t:'churn'},
+  {f:'ult_compra',t:'churn'},{f:'suporte',t:'churn'},{f:'plano',t:'churn'},
+  // dados→ltv
+  {f:'freq_comp',t:'ltv'},{f:'ticket',t:'ltv'},{f:'recencia',t:'ltv'},{f:'plano',t:'ltv'},
+  // dados→prop_premium
+  {f:'renda',t:'prop_premium'},{f:'pos_grad',t:'prop_premium'},
+  {f:'investimentos',t:'prop_premium'},{f:'patrimonio',t:'prop_premium'},
+  {f:'plano',t:'prop_premium'},{f:'ticket',t:'prop_premium'},
+  // dados→credito
+  {f:'score_cred',t:'credito'},{f:'inadimpl',t:'credito'},{f:'uso_limite',t:'credito'},
+  {f:'renda',t:'credito'},{f:'dividas',t:'credito'},{f:'hist_cred',t:'credito'},
+  // dados→inadimpl_i
+  {f:'uso_limite',t:'inadimpl_i'},{f:'inadimpl',t:'inadimpl_i'},
+  {f:'dividas',t:'inadimpl_i'},{f:'parcelas',t:'inadimpl_i'},{f:'renda',t:'inadimpl_i'},
+  // dados→depressao_triagem
+  {f:'gps_distancia',t:'depressao_triagem'},{f:'ritmo_circadiano',t:'depressao_triagem'},
+  {f:'gps_entropia',t:'depressao_triagem'},{f:'velocidade_digitacao',t:'depressao_triagem'},
+  {f:'desbloqueios',t:'depressao_triagem'},{f:'gps_homestay',t:'depressao_triagem'},
+  {f:'passos_dia',t:'depressao_triagem'},
+  // dados→ansiedade_triagem
+  {f:'hrv',t:'ansiedade_triagem'},{f:'duracao_sono_wearable',t:'ansiedade_triagem'},
+  {f:'passos_dia',t:'ansiedade_triagem'},{f:'uso_noturno',t:'ansiedade_triagem'},
+  {f:'ritmo_circadiano',t:'ansiedade_triagem'},
+  // dados→humor_episodio
+  {f:'duracao_sono_wearable',t:'humor_episodio'},{f:'ritmo_circadiano',t:'humor_episodio'},
+  {f:'passos_dia',t:'humor_episodio'},{f:'hrv',t:'humor_episodio'},
+  {f:'contatos_bluetooth',t:'humor_episodio'},
+  // N1→N2
+  {f:'ses',t:'seg_cli'},{f:'credito',t:'seg_cli'},{f:'ltv',t:'seg_cli'},
+  {f:'credito',t:'fraude'},{f:'inadimpl_i',t:'fraude'},{f:'ses_geo',t:'fraude'},
+  {f:'ltv',t:'upsell'},{f:'churn',t:'upsell'},{f:'ses',t:'upsell'},
+  {f:'cardio',t:'saude_integrada'},{f:'diabetes_r',t:'saude_integrada'},
+  {f:'depressao_triagem',t:'saude_mental_integrada'},{f:'ansiedade_triagem',t:'saude_mental_integrada'},
+  {f:'ses_geo',t:'incl_fin'},{f:'credito',t:'incl_fin'},{f:'ses',t:'incl_fin'},
+  {f:'ses',t:'cli_premium'},{f:'ltv',t:'cli_premium'},{f:'credito',t:'cli_premium'},
+  // N2→N3
+  {f:'seg_cli',t:'perfil_360'},{f:'saude_integrada',t:'perfil_360'},{f:'incl_fin',t:'perfil_360'},
+  {f:'seg_cli',t:'risco_sist'},{f:'fraude',t:'risco_sist'},{f:'incl_fin',t:'risco_sist'},
+];
+
+// Layout constants
+const CX=[110,310,510,700];
+const RH=38, PAD=40;
+const SZ={
+  data:{w:150,h:26,r:4},
+  n1:  {w:162,h:36,r:6},
+  n2:  {w:170,h:42,r:8},
+  n3:  {w:152,h:52,r:10},
+};
+
+function sz(n){
+  if(n.d==='saude_mental'&&n.t==='n1') return SZ.n1;
+  if(n.d==='saude_mental'&&n.t==='n2') return SZ.n2;
+  return SZ[n.t];
+}
+
+function py(n){return{x:CX[n.c], y:PAD+n.r*RH};}
+
+const MAXR=Math.max(...N.map(n=>n.r));
+const SVG_H=PAD+MAXR*RH+60;
+const SVG_W=CX[3]+SZ.n3.w/2+30;
+
+const COL={
+  data:{f:'#e8f0fe',s:'#1a5fc8',tx:'#0d2a6a'},
+  n1:  {f:'#ddeaff',s:'#1a5fc8',tx:'#0d2a6a'},
+  n2:  {f:'#ede0ff',s:'#6b3fb5',tx:'#3a1080'},
+  n3:  {f:'#ffe8d8',s:'#b54000',tx:'#5c2000'},
+  ment:{f:'#e1f5ee',s:'#0f6e56',tx:'#064030'},
+};
+
+function col(n){
+  if(n.d==='saude_mental'&&(n.t==='n1'||n.t==='n2')) return COL.ment;
+  return COL[n.t];
+}
+
+function getConn(id){
+  const v=new Set([id]);
+  let fr=[id];
+  while(fr.length){const nx=[];fr.forEach(x=>{E.forEach(e=>{if(e.t===x&&!v.has(e.f)){v.add(e.f);nx.push(e.f);}});});fr=nx;}
+  fr=[id];
+  while(fr.length){const nx=[];fr.forEach(x=>{E.forEach(e=>{if(e.f===x&&!v.has(e.t)){v.add(e.t);nx.push(e.t);}});});fr=nx;}
+  return v;
+}
+
+let sel=null, flt='all';
+
+function visOf(n){
+  if(flt==='all') return true;
+  if(n.t==='data') return E.some(e=>e.f===n.id&&N.find(x=>x.id===e.t&&x.t==='n1'&&x.d===flt));
+  if(n.t==='n1') return n.d===flt;
+  if(n.t==='n2') return E.some(e=>e.t===n.id&&N.find(x=>x.id===e.f&&x.t==='n1'&&x.d===flt));
+  return true;
+}
+
+function draw(){
+  const conn=sel?getConn(sel):null;
+  const vis=new Set(N.filter(visOf).map(n=>n.id));
+  let s=`<svg id="gs" viewBox="0 0 ${SVG_W} ${SVG_H}" xmlns="http://www.w3.org/2000/svg" style="width:${SVG_W}px;min-width:100%;display:block">`;
+  // markers
+  s+=`<defs>
+    <marker id="ao" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="#1a5fc8" stroke-width="1.8" stroke-linecap="round"/></marker>
+    <marker id="an" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="#b8ccf0" stroke-width="1.5" stroke-linecap="round"/></marker>
+    <marker id="am" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="#5dcaa5" stroke-width="1.5" stroke-linecap="round"/></marker>
+    <marker id="ad" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="#ddd" stroke-width="1" stroke-linecap="round"/></marker>
+  </defs>`;
+  // col headers
+  [['DADOS BRUTOS','#1a5fc8'],['N1 — PRIMÁRIAS','#1a5fc8'],['N2 — COMPOSTAS','#6b3fb5'],['N3 — META','#b54000']].forEach(([l,c],i)=>{
+    s+=`<text x="${CX[i]}" y="20" text-anchor="middle" font-family="'Syne',sans-serif" font-size="10" font-weight="700" letter-spacing="1" fill="${c}" opacity="0.6">${l}</text>`;
+  });
+  // guide lines
+  [200,400,600].forEach(lx=>{
+    s+=`<line x1="${lx}" y1="30" x2="${lx}" y2="${SVG_H-20}" stroke="#d8d4c8" stroke-width="0.4" stroke-dasharray="2 7"/>`;
+  });
+  // edges
+  E.forEach(e=>{
+    const fn=N.find(n=>n.id===e.f), tn=N.find(n=>n.id===e.t);
+    if(!fn||!tn||!vis.has(fn.id)||!vis.has(tn.id)) return;
+    const fp=py(fn),tp=py(tn);
+    const sfn=sz(fn),stn=sz(tn);
+    const mx=(CX[fn.c]+CX[tn.c])/2;
+    const hi=conn&&conn.has(fn.id)&&conn.has(tn.id);
+    const dim=conn&&!hi;
+    const ment=fn.d==='saude_mental'||tn.d==='saude_mental';
+    const mk=dim?'ad':hi?'ao':ment?'am':'an';
+    const sc=dim?'#e0ddd8':hi?'#1a5fc8':ment?'#5dcaa5':'#b8ccf0';
+    const sw=dim?.5:hi?1.8:.7;
+    const op=dim?.18:hi?.8:.5;
+    s+=`<path d="M${CX[fn.c]+sfn.w/2},${fp.y} C${mx},${fp.y} ${mx},${tp.y} ${CX[tn.c]-stn.w/2},${tp.y}" fill="none" stroke="${sc}" stroke-width="${sw}" opacity="${op}" marker-end="url(#${mk})"/>`;
+  });
+  // nodes
+  N.forEach(n=>{
+    if(!vis.has(n.id)) return;
+    const p=py(n),sz2=sz(n),c=col(n);
+    const isSel=n.id===sel;
+    const dim=conn&&!conn.has(n.id);
+    const x=p.x-sz2.w/2, y=p.y-sz2.h/2;
+    const fill=isSel?c.s:c.f;
+    const txtFill=isSel?'#fff':(dim?'#ccc':c.tx);
+    const op=dim?.2:1;
+    const sw=isSel?2.5:1.2;
+    const isComplex=n.t!=='data';
+    const yMain=isComplex?p.y-5:p.y;
+    s+=`<g class="gnode" data-id="${n.id}" data-l="${n.l||''}" data-ref="${n.ref||''}" data-perf="${n.perf||''}" opacity="${op}">
+      <rect x="${x}" y="${y}" width="${sz2.w}" height="${sz2.h}" rx="${sz2.r}" fill="${fill}" stroke="${c.s}" stroke-width="${sw}"/>
+      <text x="${p.x}" y="${yMain}" text-anchor="middle" dominant-baseline="central" font-family="'Syne',sans-serif" font-size="${n.t==='data'?11:12}" font-weight="${n.t==='data'?500:700}" fill="${txtFill}">${n.l}</text>`;
+    if(isComplex&&n.ref){
+      const rf=isSel?'rgba(255,255,255,0.6)':(c.s+'88');
+      const refTxt=n.ref.length>30?n.ref.slice(0,28)+'…':n.ref;
+      s+=`<text x="${p.x}" y="${p.y+9}" text-anchor="middle" dominant-baseline="central" font-family="'Syne',sans-serif" font-size="9" fill="${rf}">${refTxt}</text>`;
+    }
+    s+=`</g>`;
+  });
+  s+='</svg>';
+  const wrap=document.getElementById('gwrap');
+  wrap.innerHTML=s;
+
+  document.querySelectorAll('.gnode').forEach(el=>{
+    el.addEventListener('click',ev=>{
+      ev.stopPropagation();
+      const id=el.dataset.id;
+      sel=sel===id?null:id;
+      draw();
+    });
+    el.addEventListener('mouseenter',ev=>{
+      const tt=document.getElementById('tooltip');
+      document.getElementById('tn').textContent=el.dataset.l;
+      document.getElementById('tr').textContent=el.dataset.ref||'';
+      document.getElementById('tp').textContent=el.dataset.perf||'';
+      tt.style.display='block';
+      moveTT(ev);
+    });
+    el.addEventListener('mousemove',moveTT);
+    el.addEventListener('mouseleave',()=>document.getElementById('tooltip').style.display='none');
+  });
+  wrap.onclick=()=>{sel=null;draw();};
+}
+
+function moveTT(e){
+  const tt=document.getElementById('tooltip');
+  tt.style.left=(e.clientX+14)+'px';
+  tt.style.top=(e.clientY-10)+'px';
+}
+
+function setFilter(d,btn){
+  flt=d; sel=null;
+  document.querySelectorAll('.ctrl-btn').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  draw();
+}
+
+draw();
+window.addEventListener('resize',draw);
+</script>
+</body>
+</html>
